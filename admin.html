@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BNI OCEAN 관리자</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:   #0096c7;
+      --blue-d: #0077a8;
+      --bg:     #f0f4f8;
+      --white:  #ffffff;
+      --gray-1: #f8fafc;
+      --gray-2: #e2e8f0;
+      --gray-4: #94a3b8;
+      --gray-6: #475569;
+      --gray-8: #1e293b;
+      --red:    #ef4444;
+      --green:  #22c55e;
+      --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    body { font-family:'Pretendard',-apple-system,sans-serif; background:var(--bg); color:var(--gray-8); min-height:100vh; }
+
+    /* ── LOGIN ── */
+    #login-screen {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg, #0077a8 0%, #00b4d8 100%);
+    }
+    .login-card {
+      background:var(--white); border-radius:20px;
+      padding:48px 40px; width:100%; max-width:400px;
+      box-shadow:0 20px 60px rgba(0,0,0,.15);
+    }
+    .login-logo {
+      display:flex; align-items:center; gap:10px; margin-bottom:32px;
+    }
+    .login-logo-icon {
+      width:44px; height:44px; border-radius:12px;
+      background:linear-gradient(135deg,var(--blue-d),var(--blue));
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.2rem; font-weight:900; color:#fff;
+    }
+    .login-logo h1 { font-size:1.15rem; font-weight:800; color:var(--gray-8); }
+    .login-logo span { font-size:.78rem; color:var(--gray-4); display:block; margin-top:1px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:.82rem; font-weight:600; color:var(--gray-6); margin-bottom:6px; }
+    .form-group input {
+      width:100%; padding:12px 14px; border:1.5px solid var(--gray-2);
+      border-radius:10px; font-size:.9rem; font-family:inherit;
+      background:var(--gray-1); color:var(--gray-8); outline:none;
+      transition:border-color .2s;
+    }
+    .form-group input:focus { border-color:var(--blue); background:var(--white); }
+    .btn-login {
+      width:100%; padding:13px; background:var(--blue); color:#fff;
+      border:none; border-radius:10px; font-size:.95rem; font-weight:700;
+      cursor:pointer; font-family:inherit; margin-top:8px;
+      transition:background .2s;
+    }
+    .btn-login:hover { background:var(--blue-d); }
+    .login-err { font-size:.82rem; color:var(--red); margin-top:10px; text-align:center; display:none; }
+
+    /* ── LAYOUT ── */
+    #app { display:none; }
+    .sidebar {
+      width:220px; min-height:100vh; position:fixed; left:0; top:0;
+      background:var(--gray-8); display:flex; flex-direction:column;
+      z-index:50;
+    }
+    .sidebar-logo {
+      padding:22px 20px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-logo span { color:#fff; font-weight:800; font-size:1rem; letter-spacing:-.3px; }
+    .sidebar-logo small { color:rgba(255,255,255,.4); font-size:.72rem; display:block; margin-top:2px; }
+    .sidebar-nav { flex:1; padding:12px 8px; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 14px; border-radius:9px;
+      color:rgba(255,255,255,.6); font-size:.875rem; font-weight:500;
+      cursor:pointer; transition:all .15s; margin-bottom:2px;
+    }
+    .nav-item:hover { background:rgba(255,255,255,.07); color:#fff; }
+    .nav-item.active { background:var(--blue); color:#fff; }
+    .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+    .sidebar-footer {
+      padding:16px; border-top:1px solid rgba(255,255,255,.08);
+    }
+    .btn-logout {
+      width:100%; padding:9px; background:rgba(239,68,68,.15);
+      color:#ef4444; border:none; border-radius:8px;
+      font-size:.82rem; font-weight:600; cursor:pointer; font-family:inherit;
+      transition:background .15s;
+    }
+    .btn-logout:hover { background:rgba(239,68,68,.25); }
+
+    .main-area {
+      margin-left:220px; padding:32px;
+      min-height:100vh;
+    }
+    .page-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:24px;
+    }
+    .page-header h2 { font-size:1.35rem; font-weight:800; color:var(--gray-8); }
+    .page-header p { font-size:.83rem; color:var(--gray-4); margin-top:3px; }
+
+    /* ── CARDS ── */
+    .card {
+      background:var(--white); border-radius:var(--radius);
+      box-shadow:var(--shadow); overflow:hidden;
+    }
+    .card-header {
+      padding:16px 20px; border-bottom:1px solid var(--gray-2);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .card-header h3 { font-size:.95rem; font-weight:700; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    thead th {
+      padding:10px 14px; text-align:left;
+      background:var(--gray-1); color:var(--gray-4);
+      font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+      border-bottom:1px solid var(--gray-2);
+    }
+    tbody td {
+      padding:12px 14px; border-bottom:1px solid var(--gray-2);
+      color:var(--gray-8); vertical-align:middle;
+    }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:var(--gray-1); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding:7px 14px; border-radius:7px; border:none;
+      font-size:.8rem; font-weight:600; cursor:pointer;
+      font-family:inherit; transition:all .15s; display:inline-flex;
+      align-items:center; gap:5px;
+    }
+    .btn-primary { background:var(--blue); color:#fff; }
+    .btn-primary:hover { background:var(--blue-d); }
+    .btn-danger  { background:rgba(239,68,68,.1); color:var(--red); }
+    .btn-danger:hover  { background:rgba(239,68,68,.2); }
+    .btn-success { background:rgba(34,197,94,.1); color:var(--green); }
+    .btn-success:hover { background:rgba(34,197,94,.2); }
+    .btn-secondary { background:var(--gray-2); color:var(--gray-6); }
+    .btn-secondary:hover { background:#d0d9e4; }
+    .btn-sm { padding:5px 10px; font-size:.76rem; }
+
+    /* ── BADGE ── */
+    .badge {
+      display:inline-block; padding:2px 8px; border-radius:50px;
+      font-size:.72rem; font-weight:700;
+    }
+    .badge-green  { background:rgba(34,197,94,.1);  color:#16a34a; }
+    .badge-gray   { background:var(--gray-2);        color:var(--gray-6); }
+    .badge-yellow { background:rgba(234,179,8,.15);  color:#a16207; }
+    .badge-red    { background:rgba(239,68,68,.1);   color:var(--red); }
+    .badge-blue   { background:rgba(0,150,199,.1);   color:var(--blue-d); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.45);
+      z-index:200; display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .modal {
+      background:var(--white); border-radius:16px;
+      width:100%; max-width:520px; max-height:90vh; overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,.2);
+    }
+    .modal-header {
+      padding:20px 24px 16px;
+      border-bottom:1px solid var(--gray-2);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .modal-header h3 { font-size:1rem; font-weight:700; }
+    .modal-close {
+      background:none; border:none; font-size:1.2rem;
+      cursor:pointer; color:var(--gray-4); padding:4px;
+    }
+    .modal-body { padding:24px; }
+    .modal-footer {
+      padding:16px 24px; border-top:1px solid var(--gray-2);
+      display:flex; gap:10px; justify-content:flex-end;
+    }
+    .field-group { margin-bottom:16px; }
+    .field-group label { display:block; font-size:.82rem; font-weight:600; color:var(--gray-6); margin-bottom:6px; }
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width:100%; padding:10px 13px; border:1.5px solid var(--gray-2);
+      border-radius:9px; font-size:.88rem; font-family:inherit;
+      background:var(--gray-1); color:var(--gray-8); outline:none;
+      transition:border-color .2s; resize:vertical;
+    }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color:var(--blue); background:var(--white); }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+    /* ── STATS GRID ── */
+    .stats-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+      margin-bottom:24px;
+    }
+    .stat-card {
+      background:var(--white); border-radius:var(--radius); padding:20px;
+      box-shadow:var(--shadow);
+    }
+    .stat-card .num { font-size:1.6rem; font-weight:900; color:var(--blue); }
+    .stat-card .lbl { font-size:.78rem; color:var(--gray-4); margin-top:4px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position:fixed; bottom:24px; right:24px; z-index:300;
+      background:var(--gray-8); color:#fff;
+      padding:12px 20px; border-radius:10px;
+      font-size:.85rem; font-weight:500;
+      box-shadow:0 8px 24px rgba(0,0,0,.2);
+      transform:translateY(80px); opacity:0;
+      transition:all .3s; pointer-events:none;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { background:var(--green); }
+    .toast.error   { background:var(--red); }
+
+    /* ── TAB PAGES ── */
+    .tab-page { display:none; }
+    .tab-page.active { display:block; }
+
+    /* ── STAR RATING ── */
+    .stars { color:#f59e0b; }
+
+    /* ── TOGGLE ── */
+    .toggle {
+      position:relative; width:38px; height:22px;
+      display:inline-block; cursor:pointer;
+    }
+    .toggle input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+      position:absolute; inset:0;
+      background:var(--gray-2); border-radius:22px;
+      transition:.2s;
+    }
+    .toggle-slider::before {
+      content:''; position:absolute;
+      width:16px; height:16px; left:3px; bottom:3px;
+      background:#fff; border-radius:50%;
+      transition:.2s; box-shadow:0 1px 4px rgba(0,0,0,.2);
+    }
+    .toggle input:checked + .toggle-slider { background:var(--blue); }
+    .toggle input:checked + .toggle-slider::before { transform:translateX(16px); }
+
+    /* loading */
+    .loading-row td { text-align:center; color:var(--gray-4); padding:32px; }
+    .spinner {
+      display:inline-block; width:20px; height:20px;
+      border:2px solid var(--gray-2); border-top-color:var(--blue);
+      border-radius:50%; animation:spin .7s linear infinite;
+      margin-right:8px; vertical-align:middle;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media(max-width:900px){
+      .sidebar{ width:60px; }
+      .nav-item span, .sidebar-logo small, .sidebar-logo span+small { display:none; }
+      .sidebar-logo span { display:none; }
+      .main-area { margin-left:60px; padding:20px; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">B</div>
+      <div>
+        <h1>BNI OCEAN</h1>
+        <small>관리자 패널</small>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>이메일</label>
+      <input type="email" id="login-email" placeholder="admin@bnikorea.us" autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label>비밀번호</label>
+      <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="btn-login" onclick="doLogin()">로그인</button>
+    <p class="login-err" id="login-err"></p>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>BNI OCEAN</span>
+      <small>관리자</small>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
+        <span class="icon">📊</span><span>대시보드</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('members')" data-tab="members">
+        <span class="icon">👥</span><span>멤버 관리</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('reviews')" data-tab="reviews">
+        <span class="icon">⭐</span><span>후기 관리</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('stats')" data-tab="stats">
+        <span class="icon">📈</span><span>통계 수치</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('gallery')" data-tab="gallery">
+        <span class="icon">🖼</span><span>갤러리</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('contacts')" data-tab="contacts">
+        <span class="icon">📋</span><span>참관 신청</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="tab-page active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <h2>대시보드</h2>
+          <p>BNI OCEAN 현황 요약</p>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="num" id="dash-members">-</div>
+          <div class="lbl">활성 멤버</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="dash-reviews">-</div>
+          <div class="lbl">후기 수</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="dash-gallery">-</div>
+          <div class="lbl">갤러리 이미지</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="dash-contacts">-</div>
+          <div class="lbl">미처리 신청</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>최근 참관 신청</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>이름</th><th>연락처</th><th>업종</th><th>신청일</th><th>상태</th></tr></thead>
+            <tbody id="dash-contacts-list">
+              <tr class="loading-row"><td colspan="5"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MEMBERS ── -->
+    <div class="tab-page" id="tab-members">
+      <div class="page-header">
+        <div><h2>멤버 관리</h2><p>멤버 추가·수정·순서 변경</p></div>
+        <button class="btn btn-primary" onclick="openMemberModal()">+ 멤버 추가</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>순서</th><th>이름</th><th>회사</th><th>업종</th>
+                <th>Instagram</th><th>활성</th><th>관리</th>
+              </tr>
+            </thead>
+            <tbody id="members-list">
+              <tr class="loading-row"><td colspan="7"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REVIEWS ── -->
+    <div class="tab-page" id="tab-reviews">
+      <div class="page-header">
+        <div><h2>후기 관리</h2><p>성공사례 후기 추가·수정</p></div>
+        <button class="btn btn-primary" onclick="openReviewModal()">+ 후기 추가</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>작성자</th><th>직함</th><th>평점</th><th>내용 요약</th><th>매출</th><th>활성</th><th>관리</th></tr>
+            </thead>
+            <tbody id="reviews-list">
+              <tr class="loading-row"><td colspan="7"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="tab-page" id="tab-stats">
+      <div class="page-header">
+        <div><h2>통계 수치</h2><p>메인 페이지 통계 값 수정</p></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>키</th><th>값</th><th>라벨</th><th>관리</th></tr></thead>
+            <tbody id="stats-list">
+              <tr class="loading-row"><td colspan="4"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GALLERY ── -->
+    <div class="tab-page" id="tab-gallery">
+      <div class="page-header">
+        <div><h2>갤러리</h2><p>사진 추가·순서 변경</p></div>
+        <button class="btn btn-primary" onclick="openGalleryModal()">+ 사진 추가</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>미리보기</th><th>캡션</th><th>순서</th><th>관리</th></tr></thead>
+            <tbody id="gallery-list">
+              <tr class="loading-row"><td colspan="4"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONTACTS ── -->
+    <div class="tab-page" id="tab-contacts">
+      <div class="page-header">
+        <div><h2>참관 신청 목록</h2><p>방문 신청 관리</p></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>이름</th><th>연락처</th><th>이메일</th><th>회사/업종</th><th>메시지</th><th>신청일</th><th>상태</th></tr>
+            </thead>
+            <tbody id="contacts-list">
+              <tr class="loading-row"><td colspan="7"><span class="spinner"></span>불러오는 중…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- Member Modal -->
+<div class="modal-overlay" id="modal-member" style="display:none" onclick="closeModal('modal-member',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="member-modal-title">멤버 추가</h3>
+      <button class="modal-close" onclick="closeModal('modal-member')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="m-id" />
+      <div class="field-row">
+        <div class="field-group"><label>이름 *</label><input id="m-name" placeholder="김홍길" /></div>
+        <div class="field-group"><label>회사명</label><input id="m-company" placeholder="(주)예시" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>업종</label><input id="m-field" placeholder="인테리어" /></div>
+        <div class="field-group"><label>순서</label><input type="number" id="m-order" value="1" min="1" /></div>
+      </div>
+      <div class="field-group"><label>사진 URL</label><input id="m-photo" placeholder="https://..." /></div>
+      <div class="field-group"><label>Instagram URL</label><input id="m-instagram" placeholder="https://instagram.com/..." /></div>
+      <div class="field-group"><label>소개</label><textarea id="m-bio" rows="3" placeholder="간단한 소개…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-member')">취소</button>
+      <button class="btn btn-primary" onclick="saveMember()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="modal-review" style="display:none" onclick="closeModal('modal-review',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="review-modal-title">후기 추가</h3>
+      <button class="modal-close" onclick="closeModal('modal-review')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="r-id" />
+      <div class="field-row">
+        <div class="field-group"><label>작성자 이름 *</label><input id="r-name" placeholder="홍길동" /></div>
+        <div class="field-group"><label>직함</label><input id="r-title" placeholder="대표, 마케터…" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>평점</label>
+          <select id="r-rating">
+            <option value="5">⭐⭐⭐⭐⭐ 5점</option>
+            <option value="4">⭐⭐⭐⭐ 4점</option>
+            <option value="3">⭐⭐⭐ 3점</option>
+          </select>
+        </div>
+        <div class="field-group"><label>매출 수치</label><input id="r-revenue" placeholder="계약 1,200만 원 달성" /></div>
+      </div>
+      <div class="field-group"><label>후기 내용 *</label><textarea id="r-content" rows="4" placeholder="BNI에서 리퍼럴을 통해…"></textarea></div>
+      <div class="field-group"><label>사진 URL</label><input id="r-photo" placeholder="https://..." /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-review')">취소</button>
+      <button class="btn btn-primary" onclick="saveReview()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-overlay" id="modal-stat" style="display:none" onclick="closeModal('modal-stat',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>통계 수치 수정</h3>
+      <button class="modal-close" onclick="closeModal('modal-stat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="s-id" />
+      <div class="field-group"><label>키</label><input id="s-key" readonly style="opacity:.5" /></div>
+      <div class="field-group"><label>값</label><input id="s-value" placeholder="350+" /></div>
+      <div class="field-group"><label>라벨</label><input id="s-label" placeholder="월 평균 고객 추천" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-stat')">취소</button>
+      <button class="btn btn-primary" onclick="saveStat()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Modal -->
+<div class="modal-overlay" id="modal-gallery" style="display:none" onclick="closeModal('modal-gallery',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="gallery-modal-title">사진 추가</h3>
+      <button class="modal-close" onclick="closeModal('modal-gallery')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="g-id" />
+      <div class="field-group"><label>이미지 URL *</label><input id="g-url" placeholder="https://..." /></div>
+      <div class="field-row">
+        <div class="field-group"><label>캡션</label><input id="g-caption" placeholder="2025년 정기 미팅" /></div>
+        <div class="field-group"><label>순서</label><input type="number" id="g-order" value="1" min="1" /></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-gallery')">취소</button>
+      <button class="btn btn-primary" onclick="saveGallery()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPA_URL  = 'https://vfjbnbmunzhlarrbuapf.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmamJuYm11bnpobGFycmJ1YXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODM4ODcsImV4cCI6MjA5MTE1OTg4N30.9euk6s8jBLp8eP9awy1LdwEQA4scaHKH3zkTy1mBF1g';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPA_URL, SUPA_ANON);
+
+  // ── AUTH ──
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw    = document.getElementById('login-pw').value;
+    const errEl = document.getElementById('login-err');
+    errEl.style.display = 'none';
+    const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+    if (error) { errEl.textContent = '로그인 실패: ' + error.message; errEl.style.display = 'block'; return; }
+    showApp();
+  }
+
+  document.getElementById('login-pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  async function checkSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) showApp();
+  }
+
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadDashboard();
+    loadMembers();
+    loadReviews();
+    loadStats();
+    loadGallery();
+    loadContacts();
+  }
+
+  // ── TAB ──
+  function switchTab(name) {
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+  }
+
+  // ── TOAST ──
+  function toast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast ' + type;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── MODAL ──
+  function openModal(id) { document.getElementById(id).style.display='flex'; }
+  function closeModal(id, e) {
+    if (e && e.target !== document.getElementById(id)) return;
+    document.getElementById(id).style.display='none';
+  }
+
+  // ── DASHBOARD ──
+  async function loadDashboard() {
+    const [m, r, g, c] = await Promise.all([
+      sb.from('bni_members').select('id',{count:'exact',head:true}).eq('is_active',true),
+      sb.from('bni_reviews').select('id',{count:'exact',head:true}).eq('is_active',true),
+      sb.from('bni_gallery').select('id',{count:'exact',head:true}),
+      sb.from('bni_contacts').select('id',{count:'exact',head:true}).eq('status','pending'),
+    ]);
+    document.getElementById('dash-members').textContent  = m.count ?? 0;
+    document.getElementById('dash-reviews').textContent  = r.count ?? 0;
+    document.getElementById('dash-gallery').textContent  = g.count ?? 0;
+    document.getElementById('dash-contacts').textContent = c.count ?? 0;
+
+    const { data } = await sb.from('bni_contacts').select('*').order('created_at',{ascending:false}).limit(5);
+    const tbody = document.getElementById('dash-contacts-list');
+    if (!data || !data.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="5">신청 없음</td></tr>'; return; }
+    tbody.innerHTML = data.map(c => `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.phone}</td>
+        <td>${c.field||'-'}</td>
+        <td>${fmtDate(c.created_at)}</td>
+        <td>${statusBadge(c.status)}</td>
+      </tr>`).join('');
+  }
+
+  // ── MEMBERS ──
+  let membersData = [];
+  async function loadMembers() {
+    const { data, error } = await sb.from('bni_members').select('*').order('display_order');
+    if (error) { toast('멤버 로드 실패','error'); return; }
+    membersData = data || [];
+    renderMembers();
+  }
+  function renderMembers() {
+    const tbody = document.getElementById('members-list');
+    if (!membersData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="7">데이터 없음</td></tr>'; return; }
+    tbody.innerHTML = membersData.map(m => `
+      <tr>
+        <td>${m.display_order}</td>
+        <td><strong>${m.name}</strong></td>
+        <td>${m.company||'-'}</td>
+        <td>${m.field||'-'}</td>
+        <td>${m.instagram_url ? `<a href="${m.instagram_url}" target="_blank" style="color:var(--blue)">링크</a>` : '-'}</td>
+        <td>
+          <label class="toggle">
+            <input type="checkbox" ${m.is_active?'checked':''} onchange="toggleMember('${m.id}',this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-secondary" onclick='editMember(${JSON.stringify(m)})'>수정</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteMember('${m.id}')">삭제</button>
+        </td>
+      </tr>`).join('');
+  }
+  function openMemberModal(reset=true) {
+    if(reset){
+      document.getElementById('m-id').value='';
+      ['m-name','m-company','m-field','m-photo','m-instagram','m-bio'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('m-order').value='1';
+      document.getElementById('member-modal-title').textContent='멤버 추가';
+    }
+    openModal('modal-member');
+  }
+  function editMember(m) {
+    document.getElementById('m-id').value       = m.id;
+    document.getElementById('m-name').value     = m.name||'';
+    document.getElementById('m-company').value  = m.company||'';
+    document.getElementById('m-field').value    = m.field||'';
+    document.getElementById('m-order').value    = m.display_order||1;
+    document.getElementById('m-photo').value    = m.photo_url||'';
+    document.getElementById('m-instagram').value= m.instagram_url||'';
+    document.getElementById('m-bio').value      = m.bio||'';
+    document.getElementById('member-modal-title').textContent='멤버 수정';
+    openMemberModal(false);
+  }
+  async function saveMember() {
+    const id   = document.getElementById('m-id').value;
+    const name = document.getElementById('m-name').value.trim();
+    if (!name) { toast('이름을 입력하세요','error'); return; }
+    const payload = {
+      name, company: document.getElementById('m-company').value.trim()||null,
+      field: document.getElementById('m-field').value.trim()||null,
+      display_order: parseInt(document.getElementById('m-order').value)||1,
+      photo_url: document.getElementById('m-photo').value.trim()||null,
+      instagram_url: document.getElementById('m-instagram').value.trim()||null,
+      bio: document.getElementById('m-bio').value.trim()||null,
+    };
+    let error;
+    if (id) ({ error } = await sb.from('bni_members').update(payload).eq('id',id));
+    else    ({ error } = await sb.from('bni_members').insert(payload));
+    if (error) { toast('저장 실패: '+error.message,'error'); return; }
+    toast(id?'수정 완료':'추가 완료','success');
+    closeModal('modal-member');
+    loadMembers(); loadDashboard();
+  }
+  async function deleteMember(id) {
+    if (!confirm('멤버를 삭제하시겠습니까?')) return;
+    const { error } = await sb.from('bni_members').delete().eq('id',id);
+    if (error) { toast('삭제 실패','error'); return; }
+    toast('삭제 완료','success');
+    loadMembers(); loadDashboard();
+  }
+  async function toggleMember(id, val) {
+    await sb.from('bni_members').update({is_active:val}).eq('id',id);
+    toast(val?'활성화':'비활성화','success');
+  }
+
+  // ── REVIEWS ──
+  let reviewsData = [];
+  async function loadReviews() {
+    const { data } = await sb.from('bni_reviews').select('*').order('created_at',{ascending:false});
+    reviewsData = data || [];
+    renderReviews();
+  }
+  function renderReviews() {
+    const tbody = document.getElementById('reviews-list');
+    if (!reviewsData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="7">데이터 없음</td></tr>'; return; }
+    tbody.innerHTML = reviewsData.map(r => `
+      <tr>
+        <td><strong>${r.member_name}</strong></td>
+        <td>${r.member_title||'-'}</td>
+        <td class="stars">${'⭐'.repeat(r.rating||5)}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.content}</td>
+        <td><span class="badge badge-green">${r.revenue_text||'-'}</span></td>
+        <td>
+          <label class="toggle">
+            <input type="checkbox" ${r.is_active?'checked':''} onchange="toggleReview('${r.id}',this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-secondary" onclick='editReview(${JSON.stringify(r)})'>수정</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteReview('${r.id}')">삭제</button>
+        </td>
+      </tr>`).join('');
+  }
+  function openReviewModal(reset=true) {
+    if(reset){
+      document.getElementById('r-id').value='';
+      ['r-name','r-title','r-revenue','r-content','r-photo'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('r-rating').value='5';
+      document.getElementById('review-modal-title').textContent='후기 추가';
+    }
+    openModal('modal-review');
+  }
+  function editReview(r) {
+    document.getElementById('r-id').value      = r.id;
+    document.getElementById('r-name').value    = r.member_name||'';
+    document.getElementById('r-title').value   = r.member_title||'';
+    document.getElementById('r-rating').value  = r.rating||5;
+    document.getElementById('r-revenue').value = r.revenue_text||'';
+    document.getElementById('r-content').value = r.content||'';
+    document.getElementById('r-photo').value   = r.photo_url||'';
+    document.getElementById('review-modal-title').textContent='후기 수정';
+    openReviewModal(false);
+  }
+  async function saveReview() {
+    const id      = document.getElementById('r-id').value;
+    const name    = document.getElementById('r-name').value.trim();
+    const content = document.getElementById('r-content').value.trim();
+    if (!name||!content) { toast('필수 항목을 입력하세요','error'); return; }
+    const payload = {
+      member_name: name,
+      member_title: document.getElementById('r-title').value.trim()||null,
+      rating: parseInt(document.getElementById('r-rating').value)||5,
+      revenue_text: document.getElementById('r-revenue').value.trim()||null,
+      content,
+      photo_url: document.getElementById('r-photo').value.trim()||null,
+    };
+    let error;
+    if (id) ({ error } = await sb.from('bni_reviews').update(payload).eq('id',id));
+    else    ({ error } = await sb.from('bni_reviews').insert(payload));
+    if (error) { toast('저장 실패: '+error.message,'error'); return; }
+    toast(id?'수정 완료':'추가 완료','success');
+    closeModal('modal-review');
+    loadReviews(); loadDashboard();
+  }
+  async function deleteReview(id) {
+    if (!confirm('후기를 삭제하시겠습니까?')) return;
+    await sb.from('bni_reviews').delete().eq('id',id);
+    toast('삭제 완료','success');
+    loadReviews(); loadDashboard();
+  }
+  async function toggleReview(id, val) {
+    await sb.from('bni_reviews').update({is_active:val}).eq('id',id);
+  }
+
+  // ── STATS ──
+  let statsData = [];
+  async function loadStats() {
+    const { data } = await sb.from('bni_stats').select('*').order('stat_key');
+    statsData = data || [];
+    renderStats();
+  }
+  function renderStats() {
+    const tbody = document.getElementById('stats-list');
+    if (!statsData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="4">데이터 없음</td></tr>'; return; }
+    tbody.innerHTML = statsData.map(s => `
+      <tr>
+        <td><code style="background:var(--gray-1);padding:2px 6px;border-radius:4px;font-size:.8rem">${s.stat_key}</code></td>
+        <td><strong>${s.stat_value}</strong></td>
+        <td>${s.stat_label}</td>
+        <td><button class="btn btn-sm btn-secondary" onclick='editStat(${JSON.stringify(s)})'>수정</button></td>
+      </tr>`).join('');
+  }
+  function editStat(s) {
+    document.getElementById('s-id').value    = s.id;
+    document.getElementById('s-key').value   = s.stat_key;
+    document.getElementById('s-value').value = s.stat_value;
+    document.getElementById('s-label').value = s.stat_label;
+    openModal('modal-stat');
+  }
+  async function saveStat() {
+    const id = document.getElementById('s-id').value;
+    const val = document.getElementById('s-value').value.trim();
+    const lbl = document.getElementById('s-label').value.trim();
+    if (!val||!lbl) { toast('값과 라벨을 입력하세요','error'); return; }
+    const { error } = await sb.from('bni_stats').update({stat_value:val,stat_label:lbl,updated_at:new Date().toISOString()}).eq('id',id);
+    if (error) { toast('저장 실패','error'); return; }
+    toast('수정 완료','success');
+    closeModal('modal-stat');
+    loadStats();
+  }
+
+  // ── GALLERY ──
+  let galleryData = [];
+  async function loadGallery() {
+    const { data } = await sb.from('bni_gallery').select('*').order('display_order');
+    galleryData = data || [];
+    renderGallery();
+  }
+  function renderGallery() {
+    const tbody = document.getElementById('gallery-list');
+    if (!galleryData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="4">데이터 없음</td></tr>'; return; }
+    tbody.innerHTML = galleryData.map(g => `
+      <tr>
+        <td><img src="${g.image_url}" style="width:64px;height:48px;object-fit:cover;border-radius:6px" onerror="this.style.opacity=.3" /></td>
+        <td>${g.caption||'-'}</td>
+        <td>${g.display_order}</td>
+        <td style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-secondary" onclick='editGallery(${JSON.stringify(g)})'>수정</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteGallery('${g.id}')">삭제</button>
+        </td>
+      </tr>`).join('');
+  }
+  function openGalleryModal(reset=true) {
+    if(reset){
+      document.getElementById('g-id').value='';
+      ['g-url','g-caption'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('g-order').value='1';
+      document.getElementById('gallery-modal-title').textContent='사진 추가';
+    }
+    openModal('modal-gallery');
+  }
+  function editGallery(g) {
+    document.getElementById('g-id').value      = g.id;
+    document.getElementById('g-url').value     = g.image_url;
+    document.getElementById('g-caption').value = g.caption||'';
+    document.getElementById('g-order').value   = g.display_order||1;
+    document.getElementById('gallery-modal-title').textContent='사진 수정';
+    openGalleryModal(false);
+  }
+  async function saveGallery() {
+    const id  = document.getElementById('g-id').value;
+    const url = document.getElementById('g-url').value.trim();
+    if (!url) { toast('이미지 URL을 입력하세요','error'); return; }
+    const payload = {
+      image_url: url,
+      caption: document.getElementById('g-caption').value.trim()||null,
+      display_order: parseInt(document.getElementById('g-order').value)||1,
+    };
+    let error;
+    if (id) ({ error } = await sb.from('bni_gallery').update(payload).eq('id',id));
+    else    ({ error } = await sb.from('bni_gallery').insert(payload));
+    if (error) { toast('저장 실패','error'); return; }
+    toast(id?'수정 완료':'추가 완료','success');
+    closeModal('modal-gallery');
+    loadGallery(); loadDashboard();
+  }
+  async function deleteGallery(id) {
+    if (!confirm('사진을 삭제하시겠습니까?')) return;
+    await sb.from('bni_gallery').delete().eq('id',id);
+    toast('삭제 완료','success');
+    loadGallery(); loadDashboard();
+  }
+
+  // ── CONTACTS ──
+  let contactsData = [];
+  async function loadContacts() {
+    const { data } = await sb.from('bni_contacts').select('*').order('created_at',{ascending:false});
+    contactsData = data || [];
+    renderContacts();
+  }
+  function renderContacts() {
+    const tbody = document.getElementById('contacts-list');
+    if (!contactsData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="7">신청 없음</td></tr>'; return; }
+    tbody.innerHTML = contactsData.map(c => `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.phone}</td>
+        <td>${c.email||'-'}</td>
+        <td>${[c.company,c.field].filter(Boolean).join(' / ')||'-'}</td>
+        <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.message||'-'}</td>
+        <td>${fmtDate(c.created_at)}</td>
+        <td>
+          <select class="btn btn-sm btn-secondary" onchange="updateContactStatus('${c.id}',this.value)" style="border:none;cursor:pointer">
+            ${['pending','contacted','confirmed','cancelled'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${statusLabel(s)}</option>`).join('')}
+          </select>
+        </td>
+      </tr>`).join('');
+  }
+  async function updateContactStatus(id, status) {
+    await sb.from('bni_contacts').update({status}).eq('id',id);
+    toast('상태 변경','success');
+    loadDashboard();
+  }
+
+  // ── UTILS ──
+  function fmtDate(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function statusBadge(s) {
+    const map = { pending:'badge-yellow', contacted:'badge-blue', confirmed:'badge-green', cancelled:'badge-gray' };
+    return `<span class="badge ${map[s]||'badge-gray'}">${statusLabel(s)}</span>`;
+  }
+  function statusLabel(s) {
+    return {pending:'대기중',contacted:'연락함',confirmed:'확정',cancelled:'취소'}[s]||s;
+  }
+
+  // Init
+  checkSession();
+</script>
+</body>
+</html>

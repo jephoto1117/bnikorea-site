@@ -54,6 +54,7 @@
     }
   }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
@@ -633,6 +634,55 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--gray-100); }
     ::-webkit-scrollbar-thumb { background: var(--blue-light); border-radius: 3px; }
+
+    /* ── FILTER CHIPS ── */
+    .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+    .filter-chip {
+      padding:6px 16px; border-radius:50px; border:1.5px solid var(--gray-200);
+      background:var(--white); color:var(--gray-600); font-size:.8rem; font-weight:600;
+      cursor:pointer; transition:all .15s; font-family:inherit;
+    }
+    .filter-chip:hover { border-color:var(--blue-main); color:var(--blue-main); }
+    .filter-chip.active { background:var(--blue-main); color:#fff; border-color:var(--blue-main); }
+    .avatar img { width:100%; height:100%; object-fit:cover; border-radius:12px; display:block; }
+    .insta-btn {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:.74rem; font-weight:700; color:#e1306c;
+      text-decoration:none;
+      background:rgba(225,48,108,.07); border-radius:6px;
+      padding:3px 8px; transition:background .15s; white-space:nowrap;
+    }
+    .insta-btn:hover { background:rgba(225,48,108,.15); }
+    /* ── GALLERY ── */
+    .gallery-section { background:var(--gray-50); }
+    .gallery-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+      gap:12px; min-height:80px;
+    }
+    .gallery-item {
+      border-radius:var(--radius); overflow:hidden;
+      aspect-ratio:4/3; position:relative; cursor:pointer;
+      transition:transform .2s, box-shadow .2s; background:var(--gray-100);
+    }
+    .gallery-item:hover { transform:scale(1.02); box-shadow:var(--shadow-lg); }
+    .gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-caption {
+      position:absolute; bottom:0; left:0; right:0;
+      background:linear-gradient(transparent, rgba(0,0,0,.6));
+      color:#fff; font-size:.75rem; font-weight:600;
+      padding:20px 12px 10px; opacity:0; transition:opacity .2s;
+    }
+    .gallery-item:hover .gallery-caption { opacity:1; }
+    .gallery-empty { color:var(--gray-400); font-size:.9rem; text-align:center; padding:40px; grid-column:1/-1; }
+    /* ── REVIEW STARS ── */
+    .review-stars { color:#f59e0b; font-size:.85rem; margin-bottom:10px; letter-spacing:1px; }
+    /* ── UPDATE BADGE ── */
+    .update-badge {
+      background:rgba(234,179,8,.2); color:#a16207; border-radius:4px;
+      padding:1px 6px; font-size:.7rem; font-weight:700; letter-spacing:.3px;
+    }
+    /* member loading placeholder */
+    .member-loading { text-align:center; padding:48px; color:var(--gray-400); font-size:.9rem; }
   </style>
 </head>
 <body>
@@ -646,6 +696,7 @@
   <ul class="nav-links">
     <li><a href="#members">멤버</a></li>
     <li><a href="#cases">협업사례</a></li>
+    <li><a href="#gallery">갤러리</a></li>
     <li><a href="#how">참여방법</a></li>
     <li><a href="#meeting">미팅 정보</a></li>
   </ul>
@@ -666,7 +717,7 @@
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-chip"><span class="dot"></span> 부산BNI OCEAN 챕터 운영 중</div>
+  <div class="hero-chip"><span class="dot"></span> 부산BNI OCEAN 챕터 운영 중 &nbsp;<span class="update-badge">오션챕터 업데이트중</span></div>
   <h1>
     부산 비즈니스를 키우는<br />
     <span class="highlight">부산BNI OCEAN</span>
@@ -684,10 +735,10 @@
 <!-- STATS -->
 <div class="stats-bar">
   <div class="inner">
-    <div class="stat"><span class="num">14</span><div class="lbl">전문가 멤버</div></div>
-    <div class="stat"><span class="num">매주 목요일</span><div class="lbl">정기 미팅</div></div>
-    <div class="stat"><span class="num">AM 6:30</span><div class="lbl">아바니호텔</div></div>
-    <div class="stat"><span class="num">1</span><div class="lbl">업종당 독점 자리</div></div>
+    <div class="stat"><span class="num" id="stat-member_count">14</span><div class="lbl">전문가 멤버</div></div>
+    <div class="stat"><span class="num" id="stat-monthly_referrals">350+</span><div class="lbl">월 평균 고객 추천</div></div>
+    <div class="stat"><span class="num" id="stat-total_revenue">35억+</span><div class="lbl">누적 리퍼럴 매출</div></div>
+    <div class="stat"><span class="num" id="stat-global_chapters">11,000+</span><div class="lbl">글로벌 챕터</div></div>
   </div>
 </div>
 
@@ -700,7 +751,12 @@
       <p>각 업종 단 1자리. BNI OCEAN을 이루는 핵심 전문가들입니다.</p>
     </div>
 
-    <div class="member-list reveal">
+    <!-- 업종 필터 -->
+    <div class="filter-bar reveal" id="member-filter-bar">
+      <button class="filter-chip active" onclick="filterMembers('all', this)">전체</button>
+    </div>
+
+    <div class="member-list reveal" id="member-list-wrap">
       <div class="member-list-header">
         <div>#</div>
         <div>멤버</div>
@@ -708,217 +764,9 @@
         <div>전문 분야</div>
         <div></div>
       </div>
-
-      <!-- 0 -->
-      <div class="member-row">
-        <div class="row-num">0</div>
-        <div class="row-member">
-          <div class="avatar avatar-0">김</div>
-          <div>
-            <div class="row-name">김종은</div>
-            <div class="row-company-small">삼칠</div>
-          </div>
-        </div>
-        <div class="row-company">삼칠</div>
-        <div class="row-field"><span class="field-badge">마케팅 AI 자동화</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div id="member-list-body">
+        <div class="member-loading">멤버 정보를 불러오는 중…</div>
       </div>
-
-      <!-- 1 -->
-      <div class="member-row">
-        <div class="row-num">1</div>
-        <div class="row-member">
-          <div class="avatar avatar-1">박</div>
-          <div>
-            <div class="row-name">박귀붕</div>
-            <div class="row-company-small">디자인 공간의힘</div>
-          </div>
-        </div>
-        <div class="row-company">디자인 공간의힘</div>
-        <div class="row-field"><span class="field-badge">인테리어 (주거)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 2 -->
-      <div class="member-row">
-        <div class="row-num">2</div>
-        <div class="row-member">
-          <div class="avatar avatar-2">정</div>
-          <div>
-            <div class="row-name">정완식</div>
-            <div class="row-company-small">영진에셋</div>
-          </div>
-        </div>
-        <div class="row-company">영진에셋</div>
-        <div class="row-field"><span class="field-badge">기업보험</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 3 -->
-      <div class="member-row">
-        <div class="row-num">3</div>
-        <div class="row-member">
-          <div class="avatar avatar-3">강</div>
-          <div>
-            <div class="row-name">강경석</div>
-            <div class="row-company-small">디자인아톰</div>
-          </div>
-        </div>
-        <div class="row-company">디자인아톰</div>
-        <div class="row-field"><span class="field-badge">인테리어 (뷰티샵)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 4 -->
-      <div class="member-row">
-        <div class="row-num">4</div>
-        <div class="row-member">
-          <div class="avatar avatar-4">이</div>
-          <div>
-            <div class="row-name">이보영</div>
-            <div class="row-company-small">독일피엠</div>
-          </div>
-        </div>
-        <div class="row-company">독일피엠</div>
-        <div class="row-field"><span class="field-badge">혈관·염증관리, 디톡스</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 5 -->
-      <div class="member-row">
-        <div class="row-num">5</div>
-        <div class="row-member">
-          <div class="avatar avatar-5">강</div>
-          <div>
-            <div class="row-name">강밀알</div>
-            <div class="row-company-small">선한파트너스</div>
-          </div>
-        </div>
-        <div class="row-company">선한파트너스</div>
-        <div class="row-field"><span class="field-badge">정책자금</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 6 -->
-      <div class="member-row">
-        <div class="row-num">6</div>
-        <div class="row-member">
-          <div class="avatar avatar-6">김</div>
-          <div>
-            <div class="row-name">김민규</div>
-            <div class="row-company-small">다인세무회계파트너스</div>
-          </div>
-        </div>
-        <div class="row-company">다인세무회계파트너스</div>
-        <div class="row-field"><span class="field-badge">법인세무</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 7 -->
-      <div class="member-row">
-        <div class="row-num">7</div>
-        <div class="row-member">
-          <div class="avatar avatar-7">방</div>
-          <div>
-            <div class="row-name">방혜정</div>
-            <div class="row-company-small">JARREL LAB</div>
-          </div>
-        </div>
-        <div class="row-company">JARREL LAB</div>
-        <div class="row-field"><span class="field-badge">글로벌 유통</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 8 -->
-      <div class="member-row">
-        <div class="row-num">8</div>
-        <div class="row-member">
-          <div class="avatar avatar-8">양</div>
-          <div>
-            <div class="row-name">양정훈</div>
-            <div class="row-company-small">법무법인 베테랑</div>
-          </div>
-        </div>
-        <div class="row-company">법무법인 베테랑</div>
-        <div class="row-field"><span class="field-badge">형사변호사</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 10 -->
-      <div class="member-row">
-        <div class="row-num">10</div>
-        <div class="row-member">
-          <div class="avatar avatar-9">박</div>
-          <div>
-            <div class="row-name">박성준</div>
-            <div class="row-company-small">박성준세무회계사무소</div>
-          </div>
-        </div>
-        <div class="row-company">박성준세무회계사무소</div>
-        <div class="row-field"><span class="field-badge">개인세무</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 11 -->
-      <div class="member-row">
-        <div class="row-num">11</div>
-        <div class="row-member">
-          <div class="avatar avatar-10">변</div>
-          <div>
-            <div class="row-name">변종훈</div>
-            <div class="row-company-small">태흥당한의원</div>
-          </div>
-        </div>
-        <div class="row-company">태흥당한의원 (구서점)</div>
-        <div class="row-field"><span class="field-badge">한의사</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 12 -->
-      <div class="member-row">
-        <div class="row-num">12</div>
-        <div class="row-member">
-          <div class="avatar avatar-11">이</div>
-          <div>
-            <div class="row-name">이성우</div>
-            <div class="row-company-small">더베스트금융서비스</div>
-          </div>
-        </div>
-        <div class="row-company">더베스트금융서비스</div>
-        <div class="row-field"><span class="field-badge">개인보험</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 13 -->
-      <div class="member-row">
-        <div class="row-num">13</div>
-        <div class="row-member">
-          <div class="avatar avatar-12">이</div>
-          <div>
-            <div class="row-name">이은주</div>
-            <div class="row-company-small">슬리밍고</div>
-          </div>
-        </div>
-        <div class="row-company">슬리밍고</div>
-        <div class="row-field"><span class="field-badge">바른자세 습관지도</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
-      <!-- 14 -->
-      <div class="member-row">
-        <div class="row-num">14</div>
-        <div class="row-member">
-          <div class="avatar avatar-13">박</div>
-          <div>
-            <div class="row-name">박주영</div>
-            <div class="row-company-small">스텔라디자인</div>
-          </div>
-        </div>
-        <div class="row-company">스텔라디자인</div>
-        <div class="row-field"><span class="field-badge">인테리어 (상가)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
-
     </div><!-- /member-list -->
   </div>
 </section>
@@ -931,8 +779,8 @@
       <h2>실제 협업사례</h2>
       <p>OCEAN 멤버들이 주고받은 리퍼럴이 실제 매출로 이어진 사례입니다.</p>
     </div>
-    <div class="case-grid">
-
+    <div class="case-grid" id="reviews-grid">
+      <!-- Supabase에서 동적 로딩 — 데이터 없으면 기본 카드 3개 표시 -->
       <div class="case-card reveal">
         <div class="case-quote">"</div>
         <p class="case-text">법인 설립을 앞두고 세무 처리가 막막했는데, 김민규 세무사님을 소개받아 한 번에 해결했습니다. 단순 세무 신고를 넘어 <strong>절세 전략까지 함께 수립</strong>할 수 있었습니다.</p>
@@ -945,7 +793,6 @@
           <span class="case-amount">계약 성사</span>
         </div>
       </div>
-
       <div class="case-card reveal">
         <div class="case-quote">"</div>
         <p class="case-text">사무실 이전 시 인테리어가 필요해 강경석 대표님을 소개받았습니다. <strong>뷰티샵 전문 시공 경험</strong>이 상업공간에도 그대로 발휘되어 예상보다 빠르게 완성됐습니다.</p>
@@ -958,7 +805,6 @@
           <span class="case-amount">시공 완료</span>
         </div>
       </div>
-
       <div class="case-card reveal">
         <div class="case-quote">"</div>
         <p class="case-text">형사 사건으로 갑작스럽게 법적 도움이 필요했을 때 양정훈 변호사님을 즉시 연결받았습니다. OCEAN 멤버라는 신뢰가 있어 <strong>첫 상담부터 솔직하게</strong> 이야기할 수 있었습니다.</p>
@@ -971,7 +817,20 @@
           <span class="case-amount">사건 해결</span>
         </div>
       </div>
+    </div>
+  </div>
+</section>
 
+<!-- GALLERY -->
+<section class="section gallery-section" id="gallery">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <span class="tag">GALLERY</span>
+      <h2>미팅 갤러리</h2>
+      <p>OCEAN 멤버들의 매주 미팅 현장입니다.</p>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-empty">갤러리를 준비 중입니다.</div>
     </div>
   </div>
 </section>
@@ -1217,7 +1076,14 @@
 </footer>
 
 <script>
-  // Scroll reveal
+  // ── Supabase ──
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://vfjbnbmunzhlarrbuapf.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmamJuYm11bnpobGFycmJ1YXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODM4ODcsImV4cCI6MjA5MTE1OTg4N30.9euk6s8jBLp8eP9awy1LdwEQA4scaHKH3zkTy1mBF1g'
+  );
+
+  // ── Scroll reveal ──
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e, i) => {
       if (e.isIntersecting) {
@@ -1228,16 +1094,14 @@
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // Hamburger menu
+  // ── Hamburger ──
   const hamburger = document.getElementById('hamburger');
   const mobileNav = document.getElementById('mobile-nav');
-
   hamburger.addEventListener('click', () => {
     const isOpen = hamburger.classList.toggle('open');
     mobileNav.classList.toggle('open', isOpen);
     document.body.style.overflow = isOpen ? 'hidden' : '';
   });
-
   document.querySelectorAll('#mobile-nav a').forEach(link => {
     link.addEventListener('click', () => {
       hamburger.classList.remove('open');
@@ -1246,8 +1110,137 @@
     });
   });
 
-  // Visit application form
-  function submitForm() {
+  // ── Stats ──
+  async function loadStats() {
+    const { data } = await sb.from('bni_stats').select('stat_key,stat_value');
+    if (!data) return;
+    data.forEach(({ stat_key, stat_value }) => {
+      const el = document.getElementById('stat-' + stat_key);
+      if (el) el.textContent = stat_value;
+    });
+  }
+
+  // ── Members ──
+  let allMembers = [];
+  const avatarColors = [
+    'linear-gradient(135deg,#0077a8,#00b4d8)',
+    'linear-gradient(135deg,#1a7abf,#48cae4)',
+    'linear-gradient(135deg,#0f5ea6,#0096c7)',
+    'linear-gradient(135deg,#005f87,#00b4d8)',
+    'linear-gradient(135deg,#006d9e,#48cae4)',
+    'linear-gradient(135deg,#0077a8,#90e0ef)',
+    'linear-gradient(135deg,#004f80,#0096c7)',
+    'linear-gradient(135deg,#0a5fa8,#00b4d8)',
+    'linear-gradient(135deg,#005f87,#48cae4)',
+    'linear-gradient(135deg,#1a7abf,#0096c7)',
+    'linear-gradient(135deg,#006d9e,#90e0ef)',
+    'linear-gradient(135deg,#004f80,#48cae4)',
+    'linear-gradient(135deg,#0077a8,#00b4d8)',
+    'linear-gradient(135deg,#005f87,#0096c7)',
+  ];
+
+  async function loadMembers() {
+    const { data } = await sb.from('bni_members').select('*').eq('is_active', true).order('display_order');
+    if (!data || !data.length) return;
+    allMembers = data;
+
+    // Build filter chips
+    const fields = [...new Set(data.map(m => m.field).filter(Boolean))];
+    const filterBar = document.getElementById('member-filter-bar');
+    fields.forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-chip';
+      btn.textContent = f;
+      btn.onclick = () => filterMembers(f, btn);
+      filterBar.appendChild(btn);
+    });
+
+    renderMembers(data);
+    io.observe(document.getElementById('member-filter-bar'));
+  }
+
+  function renderMembers(members) {
+    const body = document.getElementById('member-list-body');
+    body.innerHTML = members.map((m, idx) => {
+      const letter = m.name.charAt(0);
+      const color = avatarColors[idx % avatarColors.length];
+      const avatarHtml = m.photo_url
+        ? `<div class="avatar" style="background:${color}"><img src="${m.photo_url}" alt="${m.name}" /></div>`
+        : `<div class="avatar" style="background:${color}">${letter}</div>`;
+      const instaHtml = m.instagram_url
+        ? `<a class="insta-btn" href="${m.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
+        : `<button class="action-btn" title="연락하기" onclick="location.href='#apply'">→</button>`;
+      return `
+        <div class="member-row">
+          <div class="row-num">${m.display_order}</div>
+          <div class="row-member">
+            ${avatarHtml}
+            <div>
+              <div class="row-name">${m.name}</div>
+              <div class="row-company-small">${m.company || ''}</div>
+            </div>
+          </div>
+          <div class="row-company">${m.company || '-'}</div>
+          <div class="row-field"><span class="field-badge">${m.field || '-'}</span></div>
+          <div class="row-action">${instaHtml}</div>
+        </div>`;
+    }).join('');
+
+    // re-observe new elements for reveal
+    body.querySelectorAll('.member-row').forEach(el => {
+      el.style.opacity = '1';
+    });
+  }
+
+  function filterMembers(field, btn) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = field === 'all' ? allMembers : allMembers.filter(m => m.field === field);
+    renderMembers(filtered);
+  }
+
+  // ── Reviews ──
+  async function loadReviews() {
+    const { data } = await sb.from('bni_reviews').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(6);
+    if (!data || !data.length) return;
+
+    const grid = document.getElementById('reviews-grid');
+    grid.innerHTML = data.map(r => {
+      const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
+      const letter = r.member_name ? r.member_name.charAt(0) : '?';
+      return `
+        <div class="case-card reveal">
+          <div class="review-stars">${stars}</div>
+          <div class="case-quote">"</div>
+          <p class="case-text">${r.content}</p>
+          <div class="case-meta">
+            <div class="case-avatar">${letter}</div>
+            <div class="case-info">
+              <div class="name">${r.member_name}</div>
+              <div class="role">${r.member_title || ''}</div>
+            </div>
+            ${r.revenue_text ? `<span class="case-amount">${r.revenue_text}</span>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  }
+
+  // ── Gallery ──
+  async function loadGallery() {
+    const { data } = await sb.from('bni_gallery').select('*').order('display_order').limit(12);
+    const grid = document.getElementById('gallery-grid');
+    if (!data || !data.length) { grid.innerHTML = '<div class="gallery-empty">갤러리를 준비 중입니다.</div>'; return; }
+    grid.innerHTML = data.map(g => `
+      <div class="gallery-item">
+        <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}" loading="lazy" />
+        ${g.caption ? `<div class="gallery-caption">${g.caption}</div>` : ''}
+      </div>`).join('');
+  }
+
+  // ── Contact Form ──
+  async function submitForm() {
     const name = document.getElementById('f-name').value.trim();
     const tel  = document.getElementById('f-tel').value.trim();
     const job  = document.getElementById('f-job').value.trim();
@@ -1258,20 +1251,32 @@
     if (!tel)  { alert('연락처를 입력해주세요.'); document.getElementById('f-tel').focus(); return; }
     if (!job)  { alert('업종 / 직업을 입력해주세요.'); document.getElementById('f-job').focus(); return; }
 
-    const body = [
-      '[BNI OCEAN 방문 신청]',
-      '이름: ' + name,
-      '연락처: ' + tel,
-      '업종: ' + job,
-      '방문희망일: ' + (date || '미정'),
-      '문의사항: ' + (msg || '없음')
-    ].join('\n');
+    const btn = document.querySelector('.form-submit');
+    btn.disabled = true;
+    btn.textContent = '신청 중…';
 
-    window.location.href =
-      'mailto:gkxos@naver.com' +
-      '?subject=' + encodeURIComponent('BNI OCEAN 방문 신청 — ' + name) +
-      '&body=' + encodeURIComponent(body);
+    const { error } = await sb.from('bni_contacts').insert({
+      name, phone: tel, field: job,
+      message: [date ? '방문희망일: ' + date : '', msg].filter(Boolean).join('\n') || null,
+    });
+
+    if (error) {
+      alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.\n' + error.message);
+      btn.disabled = false; btn.textContent = '방문 신청하기 →';
+      return;
+    }
+
+    btn.textContent = '✅ 신청 완료!';
+    btn.style.background = '#22c55e';
+    ['f-name','f-tel','f-job','f-date','f-msg'].forEach(id => document.getElementById(id).value = '');
+    setTimeout(() => { btn.disabled = false; btn.textContent = '방문 신청하기 →'; btn.style.background = ''; }, 3000);
   }
+
+  // ── Init ──
+  loadStats();
+  loadMembers();
+  loadReviews();
+  loadGallery();
 </script>
 </body>
 </html>
