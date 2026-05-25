@@ -4,4 +4,7 @@ Allow: /
 User-agent: Yeti
 Allow: /
 
+User-agent: Googlebot
+Allow: /
+
 Sitemap: https://bnikorea.us/sitemap.xml
