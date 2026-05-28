@@ -260,7 +260,7 @@
     .card-link:hover { background: var(--primary-dark); }
 
     /* PROMO BANNERS */
-    .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 6px 0; }
+    .promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 6px 0; }
     .promo-banner {
       border-radius: var(--radius); overflow: hidden;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -375,6 +375,7 @@
       .card-grid { grid-template-columns: 1fr; }
       .promo-grid { grid-template-columns: 1fr; }
     }
+    .promo-banner.snap { background: linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); color:#fff; }
   </style>
 </head>
 <body>
@@ -383,7 +384,7 @@
 <header>
   <div class="logo">즐거운 <span>탱이네</span></div>
   <a class="header-cta" href="tel:01056405759">
-    <span class="cta-label">마케팅 의뢰 연락</span>
+    <span class="cta-label">해당 지면 광고 문의</span>
     <span class="cta-num">010-5640-5759</span>
   </a>
 </header>
@@ -411,19 +412,12 @@
   </div>
 </section>
 
-<!-- 후기 카드 -->
-<div class="review-strip">
-  <img src="review-card.jpg" alt="후기 남기시면 100% 드려요 - 스타벅스 아메리카노 기프티콘 | 입주청소 평당 13,000원"
-       onerror="this.style.display='none'; document.getElementById('rv-fallback').style.display='block'">
-  <div id="rv-fallback" class="review-strip-fallback" style="display:none">
-    <div class="rv-head">즐거운 탱이네</div>
-    <div class="rv-main">후기 남기시면 <span>100%</span> 드려요</div>
-    <div class="rv-sub">작업 완료 후 후기 1건 = 🎁 스타벅스 아메리카노 기프티콘</div>
-    <div class="rv-badge">입주청소 평당 13,000원</div>
-    <div class="rv-phone">010-5640-5759</div>
-  </div>
+<!-- 스폰서 광고 지면 -->
+<div style="background:#f0f4ff;border-top:1px solid #dde3ef;border-bottom:1px solid #dde3ef;text-align:center;padding:26px 20px;">
+  <p style="font-size:11px;color:#aaa;margin-bottom:8px;letter-spacing:.5px;">ADVERTISEMENT</p>
+  <p style="font-size:17px;font-weight:900;color:#1a4fc4;margin-bottom:4px;">광고 입점 문의</p>
+  <a href="tel:01056405759" style="font-size:22px;font-weight:900;color:#1a4fc4;display:block;">010-5640-5759</a>
 </div>
-
 <!-- 쿠팡 광고 1 -->
 <div class="ad-wrap">
   <a href="https://link.coupang.com/a/dZZTffW6aO" target="_blank" referrerpolicy="unsafe-url">
@@ -443,22 +437,12 @@
   <h2 class="section-title" id="businesses">양산시 삼성동 추천 업체</h2>
   <div class="card-grid">
 
-    <div class="card">
-      <div class="card-thumb">
-        <img src="mascot.jpg" alt="즐거운 탱이네"
-             onerror="this.parentNode.innerHTML='🏠'">
-      </div>
-      <div class="card-body">
-        <div class="card-name">즐거운 탱이네</div>
-        <div class="card-tags">
-          <span class="tag hot">대표업체</span>
-          <span class="tag">입주청소</span>
-          <span class="tag">당일출동</span>
-        </div>
-        <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link"
-           href="https://map.naver.com/p/entry/place/1473362803?c=12.09,0,0,0,dh&placePath=/home?from=map&fromPanelNum=1&additionalHeight=76&timestamp=202605240659&locale=ko&svcName=map_pcv5"
-           target="_blank" rel="noopener">업체 위치 보기</a>
+    <div class="card" style="border:2px dashed #c8d4f0;background:#f5f8ff;">
+      <div style="text-align:center;padding:44px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;">
+        <p style="font-size:11px;color:#aaa;margin-bottom:10px;letter-spacing:.5px;">ADVERTISEMENT</p>
+        <p style="font-size:17px;font-weight:900;color:#1a4fc4;margin-bottom:6px;">광고 입점 문의</p>
+        <a href="tel:01056405759" style="font-size:20px;font-weight:900;color:#1a4fc4;">010-5640-5759</a>
+        <a href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url" style="display:inline-block;margin-top:12px;background:#1a4fc4;color:#fff;padding:7px 20px;border-radius:8px;font-size:13px;font-weight:800;">업체 위치 보기</a>
       </div>
     </div>
 
@@ -471,7 +455,7 @@
           <span class="tag">누수탐지</span>
         </div>
         <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link" href="#" target="_blank" rel="noopener">업체 상세 보기</a>
+        <a class="card-link" href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url">업체 위치 보기</a>
       </div>
     </div>
 
@@ -484,7 +468,7 @@
           <span class="tag">변기뚫음</span>
         </div>
         <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link" href="#" target="_blank" rel="noopener">업체 상세 보기</a>
+        <a class="card-link" href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url">업체 위치 보기</a>
       </div>
     </div>
 
@@ -497,7 +481,7 @@
           <span class="tag">싱크대</span>
         </div>
         <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link" href="#" target="_blank" rel="noopener">업체 상세 보기</a>
+        <a class="card-link" href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url">업체 위치 보기</a>
       </div>
     </div>
 
@@ -510,7 +494,7 @@
           <span class="tag">분배기</span>
         </div>
         <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link" href="#" target="_blank" rel="noopener">업체 상세 보기</a>
+        <a class="card-link" href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url">업체 위치 보기</a>
       </div>
     </div>
 
@@ -524,14 +508,14 @@
           <span class="tag">누수</span>
         </div>
         <div class="card-addr">📍 양산시 삼성동</div>
-        <a class="card-link" href="#" target="_blank" rel="noopener">업체 상세 보기</a>
+        <a class="card-link" href="https://link.coupang.com/a/d76TfDFWlE" target="_blank" referrerpolicy="unsafe-url">업체 위치 보기</a>
       </div>
     </div>
 
   </div>
 
   <!-- 무료 혜택 배너 -->
-  <h2 class="section-title">무료 혜택 안내</h2>
+  <h2 class="section-title" style="background:linear-gradient(90deg,#fffde7,#ffff44 18%,#ffff44 82%,#fffde7);border-radius:0 8px 8px 0;padding:8px 14px;">무료 혜택 안내</h2>
   <div class="promo-grid">
     <a class="promo-banner cafe" href="https://cafe.naver.com/relisten" target="_blank" rel="noopener">
       <div class="promo-icon">💻</div>
@@ -539,11 +523,17 @@
       <div class="promo-title">자동화 프로그램<br>무료 설치</div>
       <div class="promo-action">네이버 카페 바로가기 →</div>
     </a>
-    <a class="promo-banner form" href="https://form.naver.com/response/qGxtuk6w1evOMjWowJALDQ" target="_blank" rel="noopener">
+        <a class="promo-banner form" href="https://form.naver.com/response/qGxtuk6w1evOMjWowJALDQ" target="_blank" rel="noopener">
       <div class="promo-icon">📋</div>
-      <div class="promo-label">신청하면 무료</div>
-      <div class="promo-title">마케팅 신청<br>무료</div>
-      <div class="promo-action">신청 폼 바로가기 →</div>
+      <div class="promo-label">신청하면 블로그 포스팅 3건 무료진행</div>
+      <div class="promo-title">마케팅 신청<br>바로가기</div>
+      <div class="promo-action">신청 폼 →</div>
+    </a>
+    <a class="promo-banner snap" href="https://www.instagram.com/ranaru24/" target="_blank" rel="noopener noreferrer">
+      <div class="promo-icon">📸</div>
+      <div class="promo-label">전국 출장비무료</div>
+      <div class="promo-title">본식스냅<br>삼칠스냅</div>
+      <div class="promo-action">인스타그램 →</div>
     </a>
   </div>
 
