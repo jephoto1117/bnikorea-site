@@ -259,6 +259,19 @@
     .toggle input:checked + .toggle-slider { background:var(--blue); }
     .toggle input:checked + .toggle-slider::before { transform:translateX(16px); }
 
+    /* ── DRAG & DROP ── */
+    .drag-handle {
+      cursor:grab; font-size:1.1rem; color:var(--gray-4);
+      user-select:none; padding:0 6px; display:none;
+      align-items:center; justify-content:center;
+    }
+    .sort-mode .drag-handle { display:flex; }
+    .sort-mode tbody tr { cursor:grab; transition:background .1s; }
+    .sort-mode tbody tr:active { cursor:grabbing; }
+    tr.drag-over-top    { box-shadow:0 -2px 0 var(--blue); }
+    tr.drag-over-bottom { box-shadow:0 2px 0 var(--blue); }
+    tr.dragging         { opacity:.35; }
+
     /* loading */
     .loading-row td { text-align:center; color:var(--gray-4); padding:32px; }
     .spinner {
@@ -381,13 +394,17 @@
     <div class="tab-page" id="tab-members">
       <div class="page-header">
         <div><h2>멤버 관리</h2><p>멤버 추가·수정·순서 변경</p></div>
-        <button class="btn btn-primary" onclick="openMemberModal()">+ 멤버 추가</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" id="btn-sort" onclick="toggleSortMode()">+ 순서변경</button>
+          <button class="btn btn-primary" onclick="openMemberModal()">+ 멤버 추가</button>
+        </div>
       </div>
       <div class="card">
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
+                <th id="th-drag" style="width:32px;display:none"></th>
                 <th>순서</th><th>이름</th><th>회사</th><th>업종</th>
                 <th>Instagram</th><th>활성</th><th>관리</th>
               </tr>
@@ -685,11 +702,89 @@
     membersData = data || [];
     renderMembers();
   }
+  let sortMode = false;
+
+  function toggleSortMode() {
+    sortMode = !sortMode;
+    const btn = document.getElementById('btn-sort');
+    const thDrag = document.getElementById('th-drag');
+    const tbody = document.getElementById('members-list').closest('table').querySelector('tbody').closest('table');
+    if (sortMode) {
+      btn.textContent = '✓ 완료'; btn.className = 'btn btn-success';
+      thDrag.style.display = '';
+      document.querySelector('#tab-members .table-wrap table').classList.add('sort-mode');
+    } else {
+      btn.textContent = '+ 순서변경'; btn.className = 'btn btn-secondary';
+      thDrag.style.display = 'none';
+      document.querySelector('#tab-members .table-wrap table').classList.remove('sort-mode');
+      saveSortOrder();
+    }
+    renderMembers();
+    if (sortMode) initDragDrop();
+  }
+
+  async function saveSortOrder() {
+    const promises = membersData.map(m =>
+      sb.from('bni_members').update({ display_order: m.display_order }).eq('id', m.id)
+    );
+    await Promise.all(promises);
+    toast('순서 저장 완료', 'success');
+  }
+
+  function initDragDrop() {
+    const tbody = document.getElementById('members-list');
+    let dragIdx = null;
+
+    tbody.querySelectorAll('tr').forEach((tr, idx) => {
+      tr.draggable = true;
+
+      tr.addEventListener('dragstart', e => {
+        dragIdx = idx;
+        setTimeout(() => tr.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      tr.addEventListener('dragend', () => {
+        tbody.querySelectorAll('tr').forEach(r =>
+          r.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom')
+        );
+      });
+
+      tr.addEventListener('dragover', e => {
+        e.preventDefault();
+        tbody.querySelectorAll('tr').forEach(r =>
+          r.classList.remove('drag-over-top', 'drag-over-bottom')
+        );
+        const rect = tr.getBoundingClientRect();
+        const mid  = rect.top + rect.height / 2;
+        tr.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+      });
+
+      tr.addEventListener('drop', e => {
+        e.preventDefault();
+        if (dragIdx === null || dragIdx === idx) return;
+        const rect = tr.getBoundingClientRect();
+        const mid  = rect.top + rect.height / 2;
+        let dropIdx = e.clientY < mid ? idx : idx + 1;
+        if (dragIdx < dropIdx) dropIdx--;
+
+        const moved = membersData.splice(dragIdx, 1)[0];
+        membersData.splice(dropIdx, 0, moved);
+        membersData.forEach((m, i) => { m.display_order = i + 1; });
+
+        dragIdx = null;
+        renderMembers();
+        initDragDrop();
+      });
+    });
+  }
+
   function renderMembers() {
     const tbody = document.getElementById('members-list');
-    if (!membersData.length) { tbody.innerHTML='<tr class="loading-row"><td colspan="7">데이터 없음</td></tr>'; return; }
+    if (!membersData.length) { tbody.innerHTML=`<tr class="loading-row"><td colspan="${sortMode?8:7}">데이터 없음</td></tr>`; return; }
     tbody.innerHTML = membersData.map(m => `
       <tr>
+        <td style="${sortMode?'':'display:none'}"><span class="drag-handle">☰</span></td>
         <td>${m.display_order}</td>
         <td><strong>${m.name}</strong></td>
         <td>${m.company||'-'}</td>
