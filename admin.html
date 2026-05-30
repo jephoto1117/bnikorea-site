@@ -1210,8 +1210,11 @@
 
   function applyCrop() {
     if (!cropInst) return;
-    const canvas = cropInst.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200 });
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    // 최대 800px, 품질 0.75로 압축 (데이터 크기 최소화)
+    const canvas = cropInst.getCroppedCanvas({ maxWidth: 800, maxHeight: 800 });
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    console.log(`Cropped image: ${kb}KB`);
     if (cropCallback) cropCallback(dataUrl);
     cancelCrop();
   }
@@ -1368,7 +1371,7 @@
     if (id) ({ error } = await sb.from('bni_gallery').update(payload).eq('id',id));
     else    ({ error } = await sb.from('bni_gallery').insert(payload));
     btn.textContent = '저장'; btn.disabled = false;
-    if (error) { toast('저장 실패','error'); return; }
+    if (error) { toast(`저장 실패: ${error.message}`, 'error'); console.error('Gallery save error:', error); return; }
     toast(id?'수정 완료':'추가 완료','success');
     closeModal('modal-gallery');
     loadGallery(); loadDashboard();

@@ -239,7 +239,7 @@
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius);
-      padding: 24px 18px 20px;
+      padding: 20px 16px 20px;
       display: flex; flex-direction: column; align-items: center;
       text-align: center; position: relative; overflow: hidden;
       transition: box-shadow .2s, transform .2s;
@@ -840,115 +840,101 @@
     <div class="member-grid reveal">
 
       <div class="member-card">
-        <span class="mc-num">1</span>
+        <span class="mc-badge">인테리어 (주거)</span>
         <div class="mc-avatar mc-av1">박</div>
         <div class="mc-name">박귀붕</div>
         <div class="mc-company">디자인 공간의힘</div>
-        <span class="mc-badge">인테리어 (주거)</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">2</span>
+        <span class="mc-badge">기업보험</span>
         <div class="mc-avatar mc-av2">정</div>
         <div class="mc-name">정완식</div>
         <div class="mc-company">영진에셋</div>
-        <span class="mc-badge">기업보험</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">3</span>
+        <span class="mc-badge">인테리어 (뷰티샵)</span>
         <div class="mc-avatar mc-av3">강</div>
         <div class="mc-name">강경석</div>
         <div class="mc-company">디자인아톰</div>
-        <span class="mc-badge">인테리어 (뷰티샵)</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">4</span>
+        <span class="mc-badge">혈관·염증관리</span>
         <div class="mc-avatar mc-av4">이</div>
         <div class="mc-name">이보영</div>
         <div class="mc-company">독일피엠</div>
-        <span class="mc-badge">혈관·염증관리</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">5</span>
+        <span class="mc-badge">정책자금</span>
         <div class="mc-avatar mc-av5">강</div>
         <div class="mc-name">강밀알</div>
         <div class="mc-company">선한파트너스</div>
-        <span class="mc-badge">정책자금</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">6</span>
+        <span class="mc-badge">법인세무</span>
         <div class="mc-avatar mc-av6">김</div>
         <div class="mc-name">김민규</div>
         <div class="mc-company">다인세무회계파트너스</div>
-        <span class="mc-badge">법인세무</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">7</span>
+        <span class="mc-badge">글로벌 유통</span>
         <div class="mc-avatar mc-av7">방</div>
         <div class="mc-name">방혜정</div>
         <div class="mc-company">JARREL LAB</div>
-        <span class="mc-badge">글로벌 유통</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">8</span>
+        <span class="mc-badge">형사변호사</span>
         <div class="mc-avatar mc-av8">양</div>
         <div class="mc-name">양정훈</div>
         <div class="mc-company">법무법인 베테랑</div>
-        <span class="mc-badge">형사변호사</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">10</span>
+        <span class="mc-badge">개인세무</span>
         <div class="mc-avatar mc-av9">박</div>
         <div class="mc-name">박성준</div>
         <div class="mc-company">박성준세무회계사무소</div>
-        <span class="mc-badge">개인세무</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">11</span>
+        <span class="mc-badge">한의사</span>
         <div class="mc-avatar mc-av10">변</div>
         <div class="mc-name">변종훈</div>
         <div class="mc-company">태흥당한의원</div>
-        <span class="mc-badge">한의사</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">12</span>
+        <span class="mc-badge">개인보험</span>
         <div class="mc-avatar mc-av11">이</div>
         <div class="mc-name">이성우</div>
         <div class="mc-company">더베스트금융서비스</div>
-        <span class="mc-badge">개인보험</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">13</span>
+        <span class="mc-badge">바른자세 습관지도</span>
         <div class="mc-avatar mc-av12">이</div>
         <div class="mc-name">이은주</div>
         <div class="mc-company">슬리밍고</div>
-        <span class="mc-badge">바른자세 습관지도</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">14</span>
+        <span class="mc-badge">인테리어 (상가)</span>
         <div class="mc-avatar mc-av13">박</div>
         <div class="mc-name">박주영</div>
         <div class="mc-company">스텔라디자인</div>
-        <span class="mc-badge">인테리어 (상가)</span>
       </div>
 
       <div class="member-card">
-        <span class="mc-num">15</span>
+        <span class="mc-badge">마케팅 AI 자동화</span>
         <div class="mc-avatar mc-av0">김</div>
         <div class="mc-name">김종은</div>
         <div class="mc-company">삼칠</div>
-        <span class="mc-badge">마케팅 AI 자동화</span>
       </div>
 
     </div>
@@ -1414,7 +1400,7 @@
     lbImages = data;
     grid.innerHTML = data.map((g, i) => `
       <div class="gallery-item" onclick="lbOpen(${i})">
-        <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}" loading="lazy"
+        <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}"
              onerror="this.closest('.gallery-item').style.display='none'" />
         ${g.caption ? `<div class="gallery-caption">${g.caption}</div>` : ''}
       </div>`).join('');
