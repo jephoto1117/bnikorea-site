@@ -1484,7 +1484,8 @@
       const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
       const hasPhoto = r.photo_url && r.photo_url.trim().startsWith('http');
       const topHtml = hasPhoto
-        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'case-quote',textContent:'\"'}))" />`
+        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'case-quote\\'>&quot;</div>')" />`
         : `<div class="case-quote">"</div>`;
       return `
         <div class="case-card reveal">
