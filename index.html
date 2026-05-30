@@ -229,93 +229,93 @@
     }
     .section-head p { font-size: .95rem; color: var(--gray-600); line-height: 1.8; }
 
-    /* ── MEMBER LIST ── */
-    .member-list { display: flex; flex-direction: column; gap: 0; }
-    .member-list-header {
+    /* ── MEMBER GRID ── */
+    .member-grid {
       display: grid;
-      grid-template-columns: 48px 1fr 180px 180px 64px;
-      gap: 0;
-      padding: 10px 24px;
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius) var(--radius) 0 0;
-      font-size: .75rem; font-weight: 700;
-      color: var(--gray-400); letter-spacing: .5px; text-transform: uppercase;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
     }
-    .member-row {
-      display: grid;
-      grid-template-columns: 48px 1fr 180px 180px 64px;
-      gap: 0;
-      align-items: center;
-      padding: 18px 24px;
-      border-left: 1px solid var(--gray-200);
-      border-right: 1px solid var(--gray-200);
-      border-bottom: 1px solid var(--gray-100);
+    .member-card {
       background: var(--white);
-      transition: background .18s, box-shadow .18s;
-      cursor: pointer;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 24px 18px 20px;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; position: relative; overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+      cursor: default;
     }
-    .member-row:last-child {
-      border-bottom: 1px solid var(--gray-200);
-      border-radius: 0 0 var(--radius) var(--radius);
+    .member-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
+      opacity: 0; transition: opacity .2s;
     }
-    .member-row:hover {
-      background: var(--blue-bg);
-      box-shadow: inset 3px 0 0 var(--blue-main);
-    }
-    .row-num {
-      font-size: .78rem; font-weight: 700;
-      color: var(--gray-400);
+    .member-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    .member-card:hover::before { opacity: 1; }
+
+    .mc-avatar {
+      width: 72px; height: 72px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; border-radius: 8px;
-      background: var(--gray-100);
+      font-size: 1.6rem; font-weight: 800; color: #fff;
+      margin-bottom: 14px; flex-shrink: 0; overflow: hidden;
     }
-    .member-row:hover .row-num { background: var(--blue-pale); color: var(--blue-deep); }
+    .mc-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+    .mc-num {
+      position: absolute; top: 12px; right: 12px;
+      font-size: .7rem; font-weight: 700; color: var(--gray-400);
+      background: var(--gray-100); border-radius: 6px;
+      padding: 2px 7px;
+    }
+    .mc-name { font-size: 1rem; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+    .mc-company { font-size: .8rem; color: var(--gray-400); margin-bottom: 10px; }
+    .mc-badge {
+      background: var(--blue-bg); color: var(--blue-deep);
+      border-radius: 50px; padding: 4px 14px;
+      font-size: .75rem; font-weight: 700;
+    }
+    .mc-insta {
+      margin-top: 12px;
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .73rem; font-weight: 700; color: #e1306c;
+      background: rgba(225,48,108,.07); border-radius: 6px;
+      padding: 3px 10px; text-decoration: none; transition: background .15s;
+    }
+    .mc-insta:hover { background: rgba(225,48,108,.15); }
 
-    .row-member { display: flex; align-items: center; gap: 14px; }
-    .avatar {
-      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .95rem; font-weight: 800; color: #fff;
-    }
-    .avatar-0  { background: linear-gradient(135deg,#0077a8,#00b4d8); }
-    .avatar-1  { background: linear-gradient(135deg,#1a7abf,#48cae4); }
-    .avatar-2  { background: linear-gradient(135deg,#0f5ea6,#0096c7); }
-    .avatar-3  { background: linear-gradient(135deg,#005f87,#00b4d8); }
-    .avatar-4  { background: linear-gradient(135deg,#006d9e,#48cae4); }
-    .avatar-5  { background: linear-gradient(135deg,#0077a8,#90e0ef); }
-    .avatar-6  { background: linear-gradient(135deg,#004f80,#0096c7); }
-    .avatar-7  { background: linear-gradient(135deg,#0a5fa8,#00b4d8); }
-    .avatar-8  { background: linear-gradient(135deg,#005f87,#48cae4); }
-    .avatar-9  { background: linear-gradient(135deg,#1a7abf,#0096c7); }
-    .avatar-10 { background: linear-gradient(135deg,#006d9e,#90e0ef); }
-    .avatar-11 { background: linear-gradient(135deg,#004f80,#48cae4); }
-    .avatar-12 { background: linear-gradient(135deg,#0077a8,#00b4d8); }
-    .avatar-13 { background: linear-gradient(135deg,#005f87,#0096c7); }
+    /* avatar gradient variants */
+    .mc-av0  { background: linear-gradient(135deg,#0077a8,#00b4d8); }
+    .mc-av1  { background: linear-gradient(135deg,#1a7abf,#48cae4); }
+    .mc-av2  { background: linear-gradient(135deg,#0f5ea6,#0096c7); }
+    .mc-av3  { background: linear-gradient(135deg,#005f87,#00b4d8); }
+    .mc-av4  { background: linear-gradient(135deg,#006d9e,#48cae4); }
+    .mc-av5  { background: linear-gradient(135deg,#0077a8,#90e0ef); }
+    .mc-av6  { background: linear-gradient(135deg,#004f80,#0096c7); }
+    .mc-av7  { background: linear-gradient(135deg,#0a5fa8,#00b4d8); }
+    .mc-av8  { background: linear-gradient(135deg,#005f87,#48cae4); }
+    .mc-av9  { background: linear-gradient(135deg,#1a7abf,#0096c7); }
+    .mc-av10 { background: linear-gradient(135deg,#006d9e,#90e0ef); }
+    .mc-av11 { background: linear-gradient(135deg,#004f80,#48cae4); }
+    .mc-av12 { background: linear-gradient(135deg,#0077a8,#00b4d8); }
+    .mc-av13 { background: linear-gradient(135deg,#005f87,#0096c7); }
 
-    .row-name { font-size: 1rem; font-weight: 700; color: var(--gray-900); }
-    .row-company-small { font-size: .8rem; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
+    @media (max-width: 1024px) { .member-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 700px)  { .member-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+    @media (max-width: 400px)  { .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .member-card { padding: 18px 12px 16px; }
+      .mc-avatar { width: 56px; height: 56px; font-size: 1.2rem; }
+    }
 
-    .row-company {
-      font-size: .9rem; color: var(--gray-600); font-weight: 500;
-    }
-    .row-field {
-      display: flex; align-items: center;
-    }
+    /* 기존 list 호환 유지 (필터·동적 렌더용) */
     .field-badge {
       background: var(--blue-bg); color: var(--blue-deep);
       border-radius: 6px; padding: 4px 12px;
       font-size: .8rem; font-weight: 600;
     }
-    .row-action {
-      display: flex; justify-content: center;
-    }
     .action-btn {
       width: 32px; height: 32px; border-radius: 9px;
       background: var(--gray-100); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      color: var(--gray-400); font-size: .9rem;
-      transition: all .18s;
+      color: var(--gray-400); font-size: .9rem; transition: all .18s;
     }
     .action-btn:hover { background: var(--blue-main); color: #fff; }
 
@@ -837,224 +837,121 @@
       <p>각 업종 단 1자리. BNI OCEAN을 이루는 핵심 전문가들입니다.</p>
     </div>
 
-    <div class="member-list reveal">
-      <div class="member-list-header">
-        <div>#</div>
-        <div>멤버</div>
-        <div>소속</div>
-        <div>전문 분야</div>
-        <div></div>
+    <div class="member-grid reveal">
+
+      <div class="member-card">
+        <span class="mc-num">1</span>
+        <div class="mc-avatar mc-av1">박</div>
+        <div class="mc-name">박귀붕</div>
+        <div class="mc-company">디자인 공간의힘</div>
+        <span class="mc-badge">인테리어 (주거)</span>
       </div>
 
-      <!-- 1 -->
-      <div class="member-row">
-        <div class="row-num">1</div>
-        <div class="row-member">
-          <div class="avatar avatar-1">박</div>
-          <div>
-            <div class="row-name">박귀붕</div>
-            <div class="row-company-small">디자인 공간의힘</div>
-          </div>
-        </div>
-        <div class="row-company">디자인 공간의힘</div>
-        <div class="row-field"><span class="field-badge">인테리어 (주거)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">2</span>
+        <div class="mc-avatar mc-av2">정</div>
+        <div class="mc-name">정완식</div>
+        <div class="mc-company">영진에셋</div>
+        <span class="mc-badge">기업보험</span>
       </div>
 
-      <!-- 2 -->
-      <div class="member-row">
-        <div class="row-num">2</div>
-        <div class="row-member">
-          <div class="avatar avatar-2">정</div>
-          <div>
-            <div class="row-name">정완식</div>
-            <div class="row-company-small">영진에셋</div>
-          </div>
-        </div>
-        <div class="row-company">영진에셋</div>
-        <div class="row-field"><span class="field-badge">기업보험</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">3</span>
+        <div class="mc-avatar mc-av3">강</div>
+        <div class="mc-name">강경석</div>
+        <div class="mc-company">디자인아톰</div>
+        <span class="mc-badge">인테리어 (뷰티샵)</span>
       </div>
 
-      <!-- 3 -->
-      <div class="member-row">
-        <div class="row-num">3</div>
-        <div class="row-member">
-          <div class="avatar avatar-3">강</div>
-          <div>
-            <div class="row-name">강경석</div>
-            <div class="row-company-small">디자인아톰</div>
-          </div>
-        </div>
-        <div class="row-company">디자인아톰</div>
-        <div class="row-field"><span class="field-badge">인테리어 (뷰티샵)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">4</span>
+        <div class="mc-avatar mc-av4">이</div>
+        <div class="mc-name">이보영</div>
+        <div class="mc-company">독일피엠</div>
+        <span class="mc-badge">혈관·염증관리</span>
       </div>
 
-      <!-- 4 -->
-      <div class="member-row">
-        <div class="row-num">4</div>
-        <div class="row-member">
-          <div class="avatar avatar-4">이</div>
-          <div>
-            <div class="row-name">이보영</div>
-            <div class="row-company-small">독일피엠</div>
-          </div>
-        </div>
-        <div class="row-company">독일피엠</div>
-        <div class="row-field"><span class="field-badge">혈관·염증관리, 디톡스</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">5</span>
+        <div class="mc-avatar mc-av5">강</div>
+        <div class="mc-name">강밀알</div>
+        <div class="mc-company">선한파트너스</div>
+        <span class="mc-badge">정책자금</span>
       </div>
 
-      <!-- 5 -->
-      <div class="member-row">
-        <div class="row-num">5</div>
-        <div class="row-member">
-          <div class="avatar avatar-5">강</div>
-          <div>
-            <div class="row-name">강밀알</div>
-            <div class="row-company-small">선한파트너스</div>
-          </div>
-        </div>
-        <div class="row-company">선한파트너스</div>
-        <div class="row-field"><span class="field-badge">정책자금</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">6</span>
+        <div class="mc-avatar mc-av6">김</div>
+        <div class="mc-name">김민규</div>
+        <div class="mc-company">다인세무회계파트너스</div>
+        <span class="mc-badge">법인세무</span>
       </div>
 
-      <!-- 6 -->
-      <div class="member-row">
-        <div class="row-num">6</div>
-        <div class="row-member">
-          <div class="avatar avatar-6">김</div>
-          <div>
-            <div class="row-name">김민규</div>
-            <div class="row-company-small">다인세무회계파트너스</div>
-          </div>
-        </div>
-        <div class="row-company">다인세무회계파트너스</div>
-        <div class="row-field"><span class="field-badge">법인세무</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">7</span>
+        <div class="mc-avatar mc-av7">방</div>
+        <div class="mc-name">방혜정</div>
+        <div class="mc-company">JARREL LAB</div>
+        <span class="mc-badge">글로벌 유통</span>
       </div>
 
-      <!-- 7 -->
-      <div class="member-row">
-        <div class="row-num">7</div>
-        <div class="row-member">
-          <div class="avatar avatar-7">방</div>
-          <div>
-            <div class="row-name">방혜정</div>
-            <div class="row-company-small">JARREL LAB</div>
-          </div>
-        </div>
-        <div class="row-company">JARREL LAB</div>
-        <div class="row-field"><span class="field-badge">글로벌 유통</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">8</span>
+        <div class="mc-avatar mc-av8">양</div>
+        <div class="mc-name">양정훈</div>
+        <div class="mc-company">법무법인 베테랑</div>
+        <span class="mc-badge">형사변호사</span>
       </div>
 
-      <!-- 8 -->
-      <div class="member-row">
-        <div class="row-num">8</div>
-        <div class="row-member">
-          <div class="avatar avatar-8">양</div>
-          <div>
-            <div class="row-name">양정훈</div>
-            <div class="row-company-small">법무법인 베테랑</div>
-          </div>
-        </div>
-        <div class="row-company">법무법인 베테랑</div>
-        <div class="row-field"><span class="field-badge">형사변호사</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">10</span>
+        <div class="mc-avatar mc-av9">박</div>
+        <div class="mc-name">박성준</div>
+        <div class="mc-company">박성준세무회계사무소</div>
+        <span class="mc-badge">개인세무</span>
       </div>
 
-      <!-- 10 -->
-      <div class="member-row">
-        <div class="row-num">10</div>
-        <div class="row-member">
-          <div class="avatar avatar-9">박</div>
-          <div>
-            <div class="row-name">박성준</div>
-            <div class="row-company-small">박성준세무회계사무소</div>
-          </div>
-        </div>
-        <div class="row-company">박성준세무회계사무소</div>
-        <div class="row-field"><span class="field-badge">개인세무</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">11</span>
+        <div class="mc-avatar mc-av10">변</div>
+        <div class="mc-name">변종훈</div>
+        <div class="mc-company">태흥당한의원</div>
+        <span class="mc-badge">한의사</span>
       </div>
 
-      <!-- 11 -->
-      <div class="member-row">
-        <div class="row-num">11</div>
-        <div class="row-member">
-          <div class="avatar avatar-10">변</div>
-          <div>
-            <div class="row-name">변종훈</div>
-            <div class="row-company-small">태흥당한의원</div>
-          </div>
-        </div>
-        <div class="row-company">태흥당한의원 (구서점)</div>
-        <div class="row-field"><span class="field-badge">한의사</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">12</span>
+        <div class="mc-avatar mc-av11">이</div>
+        <div class="mc-name">이성우</div>
+        <div class="mc-company">더베스트금융서비스</div>
+        <span class="mc-badge">개인보험</span>
       </div>
 
-      <!-- 12 -->
-      <div class="member-row">
-        <div class="row-num">12</div>
-        <div class="row-member">
-          <div class="avatar avatar-11">이</div>
-          <div>
-            <div class="row-name">이성우</div>
-            <div class="row-company-small">더베스트금융서비스</div>
-          </div>
-        </div>
-        <div class="row-company">더베스트금융서비스</div>
-        <div class="row-field"><span class="field-badge">개인보험</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">13</span>
+        <div class="mc-avatar mc-av12">이</div>
+        <div class="mc-name">이은주</div>
+        <div class="mc-company">슬리밍고</div>
+        <span class="mc-badge">바른자세 습관지도</span>
       </div>
 
-      <!-- 13 -->
-      <div class="member-row">
-        <div class="row-num">13</div>
-        <div class="row-member">
-          <div class="avatar avatar-12">이</div>
-          <div>
-            <div class="row-name">이은주</div>
-            <div class="row-company-small">슬리밍고</div>
-          </div>
-        </div>
-        <div class="row-company">슬리밍고</div>
-        <div class="row-field"><span class="field-badge">바른자세 습관지도</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">14</span>
+        <div class="mc-avatar mc-av13">박</div>
+        <div class="mc-name">박주영</div>
+        <div class="mc-company">스텔라디자인</div>
+        <span class="mc-badge">인테리어 (상가)</span>
       </div>
 
-      <!-- 14 -->
-      <div class="member-row">
-        <div class="row-num">14</div>
-        <div class="row-member">
-          <div class="avatar avatar-13">박</div>
-          <div>
-            <div class="row-name">박주영</div>
-            <div class="row-company-small">스텔라디자인</div>
-          </div>
-        </div>
-        <div class="row-company">스텔라디자인</div>
-        <div class="row-field"><span class="field-badge">인테리어 (상가)</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
+      <div class="member-card">
+        <span class="mc-num">15</span>
+        <div class="mc-avatar mc-av0">김</div>
+        <div class="mc-name">김종은</div>
+        <div class="mc-company">삼칠</div>
+        <span class="mc-badge">마케팅 AI 자동화</span>
       </div>
 
-      <!-- 15 -->
-      <div class="member-row">
-        <div class="row-num">15</div>
-        <div class="row-member">
-          <div class="avatar avatar-0">김</div>
-          <div>
-            <div class="row-name">김종은</div>
-            <div class="row-company-small">삼칠</div>
-          </div>
-        </div>
-        <div class="row-company">삼칠</div>
-        <div class="row-field"><span class="field-badge">마케팅 AI 자동화</span></div>
-        <div class="row-action"><button class="action-btn" title="연락하기">→</button></div>
-      </div>
+    </div>
 
     </div><!-- /member-list -->
   </div>
