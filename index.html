@@ -692,7 +692,7 @@
     }
     .gallery-item {
       border-radius:var(--radius); overflow:hidden;
-      position:relative; cursor:pointer;
+      position:relative; cursor:default;
       aspect-ratio:4/3;
       transition:transform .2s, box-shadow .2s;
       background:var(--gray-100);
@@ -1399,7 +1399,7 @@
     if (!data || !data.length) { grid.innerHTML = '<div class="gallery-empty">갤러리를 준비 중입니다.</div>'; return; }
     lbImages = data;
     grid.innerHTML = data.map((g, i) => `
-      <div class="gallery-item" onclick="lbOpen(${i})">
+      <div class="gallery-item">
         <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}"
              onerror="this.closest('.gallery-item').style.display='none'" />
         ${g.caption ? `<div class="gallery-caption">${g.caption}</div>` : ''}
