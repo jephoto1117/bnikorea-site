@@ -1141,23 +1141,18 @@
   let pendingImageUrl = '';
 
   async function uploadImageToStorage(file) {
-    const ext  = (file.name || 'image.jpg').split('.').pop().toLowerCase() || 'jpg';
+    const mime = file.type || 'image/jpeg';
+    const ext  = mime.split('/')[1]?.replace('jpeg','jpg') || 'jpg';
     const rand = Math.random().toString(36).slice(2, 8);
     const path = `img-${Date.now()}-${rand}.${ext}`;
 
     const { data: uploadData, error } = await sb.storage
       .from('bni-gallery')
-      .upload(path, file, { contentType: file.type || 'image/jpeg' });
+      .upload(path, file, { contentType: mime, cacheControl: '3600' });
 
     if (error) {
-      console.error('Storage upload error:', error);
-      if (error.message.includes('not found') || error.message.includes('Bucket')) {
-        throw new Error('스토리지 버킷이 없습니다. Supabase Storage에서 bni-gallery 버킷을 생성해주세요.');
-      }
-      if (error.message.includes('security') || error.message.includes('policy') || error.statusCode === '403') {
-        throw new Error('권한 오류: Supabase Storage 정책을 설정해주세요.');
-      }
-      throw new Error(error.message);
+      console.error('Storage error:', JSON.stringify(error));
+      throw new Error(`[${error.statusCode||'?'}] ${error.message}`);
     }
 
     const { data } = sb.storage.from('bni-gallery').getPublicUrl(path);
