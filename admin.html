@@ -6,7 +6,9 @@
   <title>BNI OCEAN 관리자</title>
   <meta name="robots" content="noindex, nofollow" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/cropperjs@1/dist/cropper.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1/dist/cropper.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -296,6 +298,16 @@
     tr.drag-over-top    { box-shadow:0 -2px 0 var(--blue); }
     tr.drag-over-bottom { box-shadow:0 2px 0 var(--blue); }
     tr.dragging         { opacity:.35; }
+
+    /* ── CROP MODAL ── */
+    .crop-wrap { max-height:420px; overflow:hidden; background:#111; border-radius:8px; }
+    .crop-wrap img { max-width:100%; display:block; }
+    .crop-toolbar {
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      margin-top:12px; padding-bottom:4px;
+    }
+    .crop-sep { flex:1; }
+    .ratio-btns { display:flex; gap:6px; }
 
     /* loading */
     .loading-row td { text-align:center; color:var(--gray-4); padding:32px; }
@@ -658,6 +670,41 @@
   </div>
 </div>
 
+<!-- Crop Modal -->
+<div class="modal-overlay" id="modal-crop" style="display:none">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>이미지 편집</h3>
+      <button class="modal-close" onclick="cancelCrop()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="crop-wrap">
+        <img id="crop-img" src="" alt="crop" />
+      </div>
+      <div class="crop-toolbar">
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.zoom(0.15)" title="확대">🔍+</button>
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.zoom(-0.15)" title="축소">🔍−</button>
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.rotate(-90)" title="좌회전">↺</button>
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.rotate(90)" title="우회전">↻</button>
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.scaleX(-cropInst.getData().scaleX||1)" title="좌우반전">⇄</button>
+        <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.reset()" title="초기화">↩ 초기화</button>
+        <span class="crop-sep"></span>
+        <span style="font-size:.75rem;color:var(--gray-4)">비율</span>
+        <div class="ratio-btns">
+          <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.setAspectRatio(NaN)">자유</button>
+          <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.setAspectRatio(1)">1:1</button>
+          <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.setAspectRatio(4/3)">4:3</button>
+          <button class="btn btn-sm btn-secondary" onclick="cropInst&&cropInst.setAspectRatio(16/9)">16:9</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cancelCrop()">취소</button>
+      <button class="btn btn-primary" onclick="applyCrop()">✓ 적용</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -970,10 +1017,10 @@
 
   function handleReviewFile(file) {
     if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다','error'); return; }
-    pendingReviewImageUrl = file; // File 객체 보존
-    const reader = new FileReader();
-    reader.onload = e => setReviewPreview(e.target.result); // 미리보기만
-    reader.readAsDataURL(file);
+    showCropModal(file, dataUrl => {
+      pendingReviewImageUrl = dataUrl;
+      setReviewPreview(dataUrl);
+    });
   }
 
   function setReviewPreview(src) {
@@ -1057,19 +1104,17 @@
     const btn = document.querySelector('#modal-review .btn-primary');
     let photoUrl = null;
 
-    if (pendingReviewImageUrl instanceof File) {
-      try {
-        btn.textContent = '업로드 중…'; btn.disabled = true;
-        photoUrl = await uploadImageToStorage(pendingReviewImageUrl);
-      } catch(e) {
-        toast('업로드 실패: ' + e.message,'error');
-        btn.textContent = '저장'; btn.disabled = false; return;
+    try {
+      btn.textContent = '처리 중…'; btn.disabled = true;
+      if (pendingReviewImageUrl) {
+        photoUrl = await processImage(pendingReviewImageUrl);
+      } else {
+        const urlVal = document.getElementById('r-photo').value.trim();
+        if (urlVal) photoUrl = urlVal;
       }
-    } else if (typeof pendingReviewImageUrl === 'string' && pendingReviewImageUrl.startsWith('http')) {
-      photoUrl = pendingReviewImageUrl;
-    } else {
-      const urlVal = document.getElementById('r-photo').value.trim();
-      if (urlVal) photoUrl = urlVal;
+    } catch(e) {
+      toast('이미지 오류: ' + e.message,'error');
+      btn.textContent = '저장'; btn.disabled = false; return;
     }
 
     const payload = {
@@ -1140,29 +1185,66 @@
   let galleryData = [];
   let pendingImageUrl = '';
 
-  function compressImage(file, maxPx = 1200, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        if (w > maxPx || h > maxPx) {
-          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
-          else       { w = Math.round(w * maxPx / h); h = maxPx; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지 로드 실패')); };
-      img.src = url;
-    });
+  // ── CROP ──
+  let cropInst = null;
+  let cropCallback = null;
+
+  function showCropModal(file, callback) {
+    cropCallback = callback;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('crop-img');
+      if (cropInst) { cropInst.destroy(); cropInst = null; }
+      img.src = e.target.result;
+      document.getElementById('modal-crop').style.display = 'flex';
+      setTimeout(() => {
+        cropInst = new Cropper(img, {
+          viewMode: 1, autoCropArea: 0.9,
+          movable: true, zoomable: true, rotatable: true, scalable: true,
+          background: false,
+        });
+      }, 150);
+    };
+    reader.readAsDataURL(file);
   }
 
-  async function uploadImageToStorage(file) {
-    return await compressImage(file);
+  function applyCrop() {
+    if (!cropInst) return;
+    const canvas = cropInst.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200 });
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    if (cropCallback) cropCallback(dataUrl);
+    cancelCrop();
+  }
+
+  function cancelCrop() {
+    if (cropInst) { cropInst.destroy(); cropInst = null; }
+    document.getElementById('modal-crop').style.display = 'none';
+    cropCallback = null;
+  }
+
+  async function processImage(input) {
+    if (typeof input === 'string') return input; // data URL or http URL → 그대로
+    if (input instanceof File) {
+      // 크롭 없이 직접 저장 시 Canvas 압축
+      return new Promise((resolve, reject) => {
+        const img = new Image(), url = URL.createObjectURL(input);
+        img.onload = () => {
+          const MAX = 1200; let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h*MAX/w); w = MAX; }
+            else       { w = Math.round(w*MAX/h); h = MAX; }
+          }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지 로드 실패')); };
+        img.src = url;
+      });
+    }
+    return null;
   }
 
   function setGalleryPreview(src) {
@@ -1178,10 +1260,10 @@
 
   function handleGalleryFile(file) {
     if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다', 'error'); return; }
-    pendingImageUrl = file; // File 객체 저장 (덮어쓰지 않음)
-    const reader = new FileReader();
-    reader.onload = e => setGalleryPreview(e.target.result); // 미리보기만
-    reader.readAsDataURL(file);
+    showCropModal(file, dataUrl => {
+      pendingImageUrl = dataUrl;
+      setGalleryPreview(dataUrl);
+    });
   }
 
   function initGalleryDropzone() {
@@ -1263,18 +1345,16 @@
     const btn = document.querySelector('#modal-gallery .btn-primary');
     let finalUrl = '';
 
-    if (pendingImageUrl instanceof File) {
-      try {
-        btn.textContent = '업로드 중…'; btn.disabled = true;
-        finalUrl = await uploadImageToStorage(pendingImageUrl);
-      } catch(e) {
-        toast('업로드 실패: ' + e.message, 'error');
-        btn.textContent = '저장'; btn.disabled = false; return;
+    try {
+      btn.textContent = '처리 중…'; btn.disabled = true;
+      if (pendingImageUrl) {
+        finalUrl = await processImage(pendingImageUrl);
+      } else {
+        finalUrl = document.getElementById('g-url').value.trim();
       }
-    } else if (typeof pendingImageUrl === 'string' && pendingImageUrl.startsWith('http')) {
-      finalUrl = pendingImageUrl;
-    } else {
-      finalUrl = document.getElementById('g-url').value.trim();
+    } catch(e) {
+      toast('이미지 오류: ' + e.message, 'error');
+      btn.textContent = '저장'; btn.disabled = false; return;
     }
 
     if (!finalUrl) { toast('이미지를 선택하거나 URL을 입력하세요', 'error'); btn.textContent = '저장'; btn.disabled = false; return; }
