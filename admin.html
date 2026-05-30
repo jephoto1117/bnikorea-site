@@ -574,7 +574,23 @@
         <div class="field-group"><label>매출 수치</label><input id="r-revenue" placeholder="계약 1,200만 원 달성" /></div>
       </div>
       <div class="field-group"><label>후기 내용 *</label><textarea id="r-content" rows="4" placeholder="BNI에서 리퍼럴을 통해…"></textarea></div>
-      <div class="field-group"><label>사진 URL</label><input id="r-photo" placeholder="https://..." /></div>
+      <div class="field-group">
+        <label>사진</label>
+        <div class="drop-zone" id="r-dropzone" onclick="document.getElementById('r-file').click()">
+          <span class="dz-icon">🖼</span>
+          <div class="dz-text">
+            클릭하거나 파일을 드래그하세요<br>
+            <strong>Ctrl+V</strong> 붙여넣기도 가능합니다<br>
+            <small>PNG · JPG 지원</small>
+          </div>
+          <img id="r-preview" class="dz-preview" alt="미리보기" />
+        </div>
+        <input type="file" id="r-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleReviewFile(this.files[0])" />
+        <span class="dz-url-toggle" onclick="document.getElementById('r-url-wrap').style.display=document.getElementById('r-url-wrap').style.display==='none'?'block':'none'">또는 URL 직접 입력</span>
+        <div id="r-url-wrap" style="display:none;margin-top:8px">
+          <input id="r-photo" placeholder="https://..." style="width:100%;padding:10px 13px;border:1.5px solid var(--gray-2);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--gray-1);color:var(--gray-8);outline:none" />
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-review')">취소</button>
@@ -926,42 +942,117 @@
         </td>
       </tr>`).join('');
   }
+  let pendingReviewImageUrl = '';
+
+  function handleReviewFile(file) {
+    if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다','error'); return; }
+    const reader = new FileReader();
+    reader.onload = e => setReviewPreview(e.target.result);
+    reader.readAsDataURL(file);
+    pendingReviewImageUrl = file;
+  }
+
+  function setReviewPreview(src) {
+    const preview = document.getElementById('r-preview');
+    preview.src = src; preview.classList.add('show');
+    document.querySelector('#r-dropzone .dz-icon').style.display = 'none';
+    document.querySelector('#r-dropzone .dz-text').style.display = 'none';
+    pendingReviewImageUrl = src;
+  }
+
+  function initReviewDropzone() {
+    const dz = document.getElementById('r-dropzone');
+    if (!dz) return;
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleReviewFile(file);
+    });
+    document.addEventListener('paste', e => {
+      if (!document.getElementById('modal-review').style.display || document.getElementById('modal-review').style.display === 'none') return;
+      const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
+      if (item) handleReviewFile(item.getAsFile());
+    });
+  }
+
+  function resetReviewModal() {
+    pendingReviewImageUrl = '';
+    ['r-id','r-name','r-title','r-revenue','r-content','r-photo'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    document.getElementById('r-rating').value = '5';
+    const preview = document.getElementById('r-preview');
+    preview.src = ''; preview.classList.remove('show');
+    const icon = document.querySelector('#r-dropzone .dz-icon');
+    const text = document.querySelector('#r-dropzone .dz-text');
+    if (icon) icon.style.display = '';
+    if (text) text.style.display = '';
+    document.getElementById('r-url-wrap').style.display = 'none';
+  }
+
   function openReviewModal(reset=true) {
-    if(reset){
-      document.getElementById('r-id').value='';
-      ['r-name','r-title','r-revenue','r-content','r-photo'].forEach(id=>document.getElementById(id).value='');
-      document.getElementById('r-rating').value='5';
-      document.getElementById('review-modal-title').textContent='후기 추가';
+    if (reset) {
+      resetReviewModal();
+      document.getElementById('review-modal-title').textContent = '후기 추가';
     }
     openModal('modal-review');
+    setTimeout(initReviewDropzone, 100);
   }
+
   function editReview(r) {
+    resetReviewModal();
     document.getElementById('r-id').value      = r.id;
     document.getElementById('r-name').value    = r.member_name||'';
     document.getElementById('r-title').value   = r.member_title||'';
     document.getElementById('r-rating').value  = r.rating||5;
     document.getElementById('r-revenue').value = r.revenue_text||'';
     document.getElementById('r-content').value = r.content||'';
-    document.getElementById('r-photo').value   = r.photo_url||'';
-    document.getElementById('review-modal-title').textContent='후기 수정';
+    if (r.photo_url) {
+      setReviewPreview(r.photo_url);
+      document.getElementById('r-photo').value = r.photo_url;
+    }
+    document.getElementById('review-modal-title').textContent = '후기 수정';
     openReviewModal(false);
   }
+
   async function saveReview() {
     const id      = document.getElementById('r-id').value;
     const name    = document.getElementById('r-name').value.trim();
     const content = document.getElementById('r-content').value.trim();
     if (!name||!content) { toast('필수 항목을 입력하세요','error'); return; }
+
+    const btn = document.querySelector('#modal-review .btn-primary');
+    let photoUrl = null;
+
+    if (pendingReviewImageUrl instanceof File) {
+      try {
+        btn.textContent = '업로드 중…'; btn.disabled = true;
+        photoUrl = await uploadImageToStorage(pendingReviewImageUrl);
+      } catch(e) {
+        toast('업로드 실패: ' + e.message,'error');
+        btn.textContent = '저장'; btn.disabled = false; return;
+      }
+    } else if (typeof pendingReviewImageUrl === 'string' && pendingReviewImageUrl.startsWith('http')) {
+      photoUrl = pendingReviewImageUrl;
+    } else {
+      const urlVal = document.getElementById('r-photo').value.trim();
+      if (urlVal) photoUrl = urlVal;
+    }
+
     const payload = {
-      member_name: name,
+      member_name:  name,
       member_title: document.getElementById('r-title').value.trim()||null,
-      rating: parseInt(document.getElementById('r-rating').value)||5,
+      rating:       parseInt(document.getElementById('r-rating').value)||5,
       revenue_text: document.getElementById('r-revenue').value.trim()||null,
       content,
-      photo_url: document.getElementById('r-photo').value.trim()||null,
+      photo_url:    photoUrl,
     };
     let error;
     if (id) ({ error } = await sb.from('bni_reviews').update(payload).eq('id',id));
     else    ({ error } = await sb.from('bni_reviews').insert(payload));
+    btn.textContent = '저장'; btn.disabled = false;
     if (error) { toast('저장 실패: '+error.message,'error'); return; }
     toast(id?'수정 완료':'추가 완료','success');
     closeModal('modal-review');
