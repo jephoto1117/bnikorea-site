@@ -677,6 +677,55 @@
     }
     .gallery-item:hover .gallery-caption { opacity:1; }
     .gallery-empty { color:var(--gray-400); font-size:.9rem; text-align:center; padding:40px; grid-column:1/-1; }
+
+    /* ── LIGHTBOX ── */
+    .lb-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.92);
+      z-index:500; display:none; align-items:center; justify-content:center;
+    }
+    .lb-overlay.open { display:flex; }
+    .lb-img-wrap {
+      position:relative; max-width:90vw; max-height:88vh;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .lb-img {
+      max-width:90vw; max-height:82vh;
+      object-fit:contain; border-radius:6px;
+      user-select:none; cursor:grab;
+      transition:transform .1s;
+    }
+    .lb-img.grabbing { cursor:grabbing; }
+    .lb-close {
+      position:fixed; top:20px; right:24px;
+      background:rgba(255,255,255,.15); border:none;
+      color:#fff; font-size:1.6rem; width:44px; height:44px;
+      border-radius:50%; cursor:pointer; display:flex;
+      align-items:center; justify-content:center;
+      transition:background .2s; z-index:501;
+    }
+    .lb-close:hover { background:rgba(255,255,255,.3); }
+    .lb-arrow {
+      position:fixed; top:50%; transform:translateY(-50%);
+      background:rgba(255,255,255,.15); border:none;
+      color:#fff; font-size:1.5rem; width:48px; height:48px;
+      border-radius:50%; cursor:pointer; display:flex;
+      align-items:center; justify-content:center;
+      transition:background .2s; z-index:501; user-select:none;
+    }
+    .lb-arrow:hover { background:rgba(255,255,255,.3); }
+    .lb-prev { left:16px; }
+    .lb-next { right:16px; }
+    .lb-caption {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+      color:rgba(255,255,255,.8); font-size:.85rem;
+      background:rgba(0,0,0,.5); padding:6px 18px; border-radius:20px;
+      pointer-events:none; white-space:nowrap;
+    }
+    .lb-counter {
+      position:fixed; top:22px; left:50%; transform:translateX(-50%);
+      color:rgba(255,255,255,.6); font-size:.8rem;
+    }
     /* ── REVIEW STARS ── */
     .review-stars { color:#f59e0b; font-size:.85rem; margin-bottom:10px; letter-spacing:1px; }
     /* ── UPDATE BADGE ── */
@@ -1236,6 +1285,18 @@
   </div>
 </footer>
 
+<!-- LIGHTBOX -->
+<div class="lb-overlay" id="lb-overlay" onclick="lbClose(event)">
+  <button class="lb-close" onclick="lbCloseAll()">✕</button>
+  <button class="lb-arrow lb-prev" onclick="lbMove(-1)">‹</button>
+  <div class="lb-img-wrap">
+    <img class="lb-img" id="lb-img" src="" alt="" draggable="false" />
+  </div>
+  <button class="lb-arrow lb-next" onclick="lbMove(1)">›</button>
+  <div class="lb-counter" id="lb-counter"></div>
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+
 <script>
   // ── Supabase ──
   const { createClient } = supabase;
@@ -1392,16 +1453,96 @@
   }
 
   // ── Gallery ──
+  let lbImages = [];
+  let lbIdx    = 0;
+  let lbDrag   = { active:false, startX:0, startY:0, ox:0, oy:0 };
+
   async function loadGallery() {
-    const { data } = await sb.from('bni_gallery').select('*').order('display_order').limit(12);
+    const { data } = await sb.from('bni_gallery').select('*').order('display_order').limit(24);
     const grid = document.getElementById('gallery-grid');
     if (!data || !data.length) { grid.innerHTML = '<div class="gallery-empty">갤러리를 준비 중입니다.</div>'; return; }
-    grid.innerHTML = data.map(g => `
-      <div class="gallery-item">
+    lbImages = data;
+    grid.innerHTML = data.map((g, i) => `
+      <div class="gallery-item" onclick="lbOpen(${i})">
         <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}" loading="lazy" />
         ${g.caption ? `<div class="gallery-caption">${g.caption}</div>` : ''}
       </div>`).join('');
   }
+
+  function lbOpen(i) {
+    lbIdx = i;
+    lbRender();
+    document.getElementById('lb-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function lbRender() {
+    const g   = lbImages[lbIdx];
+    const img = document.getElementById('lb-img');
+    img.src   = g.image_url;
+    img.style.transform = 'translate(0px,0px)';
+    lbDrag.ox = 0; lbDrag.oy = 0;
+    document.getElementById('lb-caption').textContent = g.caption || '';
+    document.getElementById('lb-counter').textContent = `${lbIdx + 1} / ${lbImages.length}`;
+  }
+
+  function lbMove(dir) {
+    lbIdx = (lbIdx + dir + lbImages.length) % lbImages.length;
+    lbRender();
+  }
+
+  function lbCloseAll() {
+    document.getElementById('lb-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function lbClose(e) {
+    if (e.target === document.getElementById('lb-overlay')) lbCloseAll();
+  }
+
+  // 드래그로 상하좌우 조율
+  const lbImg = document.getElementById('lb-img');
+  lbImg.addEventListener('mousedown', e => {
+    lbDrag.active = true; lbDrag.startX = e.clientX; lbDrag.startY = e.clientY;
+    lbImg.classList.add('grabbing'); e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!lbDrag.active) return;
+    const dx = e.clientX - lbDrag.startX;
+    const dy = e.clientY - lbDrag.startY;
+    lbImg.style.transform = `translate(${lbDrag.ox + dx}px, ${lbDrag.oy + dy}px)`;
+  });
+  document.addEventListener('mouseup', e => {
+    if (!lbDrag.active) return;
+    lbDrag.ox += e.clientX - lbDrag.startX;
+    lbDrag.oy += e.clientY - lbDrag.startY;
+    lbDrag.active = false;
+    lbImg.classList.remove('grabbing');
+  });
+  // 터치 지원
+  lbImg.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    lbDrag.active = true; lbDrag.startX = t.clientX; lbDrag.startY = t.clientY;
+  }, {passive:true});
+  document.addEventListener('touchmove', e => {
+    if (!lbDrag.active) return;
+    const t = e.touches[0];
+    lbImg.style.transform = `translate(${lbDrag.ox + t.clientX - lbDrag.startX}px, ${lbDrag.oy + t.clientY - lbDrag.startY}px)`;
+  }, {passive:true});
+  document.addEventListener('touchend', e => {
+    if (!lbDrag.active) return;
+    const t = e.changedTouches[0];
+    lbDrag.ox += t.clientX - lbDrag.startX;
+    lbDrag.oy += t.clientY - lbDrag.startY;
+    lbDrag.active = false;
+  });
+  // 키보드 좌우 화살표
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lb-overlay').classList.contains('open')) return;
+    if (e.key === 'ArrowLeft')  lbMove(-1);
+    if (e.key === 'ArrowRight') lbMove(1);
+    if (e.key === 'Escape')     lbCloseAll();
+  });
 
   // ── Contact Form ──
   async function submitForm() {
