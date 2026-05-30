@@ -531,6 +531,10 @@
       font-size: 2rem; color: var(--blue-light); line-height: 1;
       margin-bottom: 12px; font-family: Georgia, serif;
     }
+    .case-photo {
+      width: 100%; height: 160px; object-fit: cover;
+      border-radius: 10px; margin-bottom: 14px; display: block;
+    }
     .case-text {
       font-size: .92rem; color: var(--gray-600); line-height: 1.85;
       margin-bottom: 20px;
@@ -1429,17 +1433,15 @@
     const grid = document.getElementById('reviews-grid');
     grid.innerHTML = data.map(r => {
       const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
-      const letter = r.member_name ? r.member_name.charAt(0) : '?';
-      const avatarHtml = r.photo_url
-        ? `<div class="case-avatar"><img src="${r.photo_url}" alt="${r.member_name}" /></div>`
-        : `<div class="case-avatar">${letter}</div>`;
+      const topHtml = r.photo_url
+        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}" />`
+        : `<div class="case-quote">"</div>`;
       return `
         <div class="case-card reveal">
           <div class="review-stars">${stars}</div>
-          <div class="case-quote">"</div>
+          ${topHtml}
           <p class="case-text">${r.content}</p>
           <div class="case-meta">
-            ${avatarHtml}
             <div class="case-info">
               <div class="name">${r.member_name}</div>
               <div class="role">${r.member_title || ''}</div>
