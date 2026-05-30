@@ -55,6 +55,7 @@
   }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
@@ -1435,11 +1436,23 @@
       return;
     }
 
+    // 이메일 알림 발송 (EmailJS)
+    emailjs.send('service_ekh66la', 'template_xwrt5cu', {
+      name,
+      phone:      tel,
+      field:      job,
+      visit_date: date || '미정',
+      message:    msg  || '없음',
+    }).catch(() => {}); // 알림 실패해도 신청 완료로 처리
+
     btn.textContent = '✅ 신청 완료!';
     btn.style.background = '#22c55e';
     ['f-name','f-tel','f-job','f-date','f-msg'].forEach(id => document.getElementById(id).value = '');
     setTimeout(() => { btn.disabled = false; btn.textContent = '방문 신청하기 →'; btn.style.background = ''; }, 3000);
   }
+
+  // ── EmailJS ──
+  emailjs.init({ publicKey: 'SqTjES7SotxqqqtDs' });
 
   // ── Init ──
   loadStats();
