@@ -239,39 +239,47 @@
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius);
-      padding: 20px 16px 20px;
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center; position: relative; overflow: hidden;
-      transition: box-shadow .2s, transform .2s;
+      padding: 28px 20px 22px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      position: relative; overflow: hidden;
+      transition: box-shadow .25s, transform .25s;
       cursor: default;
     }
+    /* 왼쪽 세로 바 */
     .member-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
-      opacity: 0; transition: opacity .2s;
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 4px;
+      background: linear-gradient(180deg, var(--blue-deep), var(--blue-light));
+      opacity: 0; transition: opacity .25s;
     }
-    .member-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    /* 상단 가로 포인트 선 */
+    .member-card::after {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-pale));
+    }
+    .member-card:hover { box-shadow: 0 8px 32px rgba(0,150,199,.14); transform: translateY(-4px); }
     .member-card:hover::before { opacity: 1; }
 
-    .mc-avatar {
-      width: 72px; height: 72px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; font-weight: 800; color: #fff;
-      margin-bottom: 14px; flex-shrink: 0; overflow: hidden;
-    }
-    .mc-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-    .mc-num {
-      position: absolute; top: 12px; right: 12px;
-      font-size: .7rem; font-weight: 700; color: var(--gray-400);
-      background: var(--gray-100); border-radius: 6px;
-      padding: 2px 7px;
-    }
-    .mc-name { font-size: 1rem; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
-    .mc-company { font-size: .8rem; color: var(--gray-400); margin-bottom: 10px; }
     .mc-badge {
       background: var(--blue-bg); color: var(--blue-deep);
       border-radius: 50px; padding: 4px 14px;
-      font-size: .75rem; font-weight: 700;
+      font-size: .72rem; font-weight: 700; letter-spacing: .3px;
+      margin-bottom: 14px;
+    }
+    /* 장식 바 */
+    .mc-bar {
+      width: 32px; height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
+      margin-bottom: 10px;
+    }
+    .mc-name {
+      font-size: 1.05rem; font-weight: 800; color: var(--gray-900);
+      margin-bottom: 5px; letter-spacing: -.3px;
+    }
+    .mc-company {
+      font-size: .78rem; color: var(--gray-400); font-weight: 400;
+      line-height: 1.4;
     }
     .mc-insta {
       margin-top: 12px;
@@ -282,27 +290,10 @@
     }
     .mc-insta:hover { background: rgba(225,48,108,.15); }
 
-    /* avatar gradient variants */
-    .mc-av0  { background: linear-gradient(135deg,#0077a8,#00b4d8); }
-    .mc-av1  { background: linear-gradient(135deg,#1a7abf,#48cae4); }
-    .mc-av2  { background: linear-gradient(135deg,#0f5ea6,#0096c7); }
-    .mc-av3  { background: linear-gradient(135deg,#005f87,#00b4d8); }
-    .mc-av4  { background: linear-gradient(135deg,#006d9e,#48cae4); }
-    .mc-av5  { background: linear-gradient(135deg,#0077a8,#90e0ef); }
-    .mc-av6  { background: linear-gradient(135deg,#004f80,#0096c7); }
-    .mc-av7  { background: linear-gradient(135deg,#0a5fa8,#00b4d8); }
-    .mc-av8  { background: linear-gradient(135deg,#005f87,#48cae4); }
-    .mc-av9  { background: linear-gradient(135deg,#1a7abf,#0096c7); }
-    .mc-av10 { background: linear-gradient(135deg,#006d9e,#90e0ef); }
-    .mc-av11 { background: linear-gradient(135deg,#004f80,#48cae4); }
-    .mc-av12 { background: linear-gradient(135deg,#0077a8,#00b4d8); }
-    .mc-av13 { background: linear-gradient(135deg,#005f87,#0096c7); }
-
     @media (max-width: 1024px) { .member-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 700px)  { .member-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
     @media (max-width: 400px)  { .member-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .member-card { padding: 18px 12px 16px; }
-      .mc-avatar { width: 56px; height: 56px; font-size: 1.2rem; }
+      .member-card { padding: 20px 14px 18px; }
     }
 
     /* 기존 list 호환 유지 (필터·동적 렌더용) */
@@ -841,98 +832,98 @@
 
       <div class="member-card">
         <span class="mc-badge">인테리어 (주거)</span>
-        <div class="mc-avatar mc-av1">박</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">박귀붕</div>
         <div class="mc-company">디자인 공간의힘</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">기업보험</span>
-        <div class="mc-avatar mc-av2">정</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">정완식</div>
         <div class="mc-company">영진에셋</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">인테리어 (뷰티샵)</span>
-        <div class="mc-avatar mc-av3">강</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">강경석</div>
         <div class="mc-company">디자인아톰</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">혈관·염증관리</span>
-        <div class="mc-avatar mc-av4">이</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">이보영</div>
         <div class="mc-company">독일피엠</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">정책자금</span>
-        <div class="mc-avatar mc-av5">강</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">강밀알</div>
         <div class="mc-company">선한파트너스</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">법인세무</span>
-        <div class="mc-avatar mc-av6">김</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">김민규</div>
         <div class="mc-company">다인세무회계파트너스</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">글로벌 유통</span>
-        <div class="mc-avatar mc-av7">방</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">방혜정</div>
         <div class="mc-company">JARREL LAB</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">형사변호사</span>
-        <div class="mc-avatar mc-av8">양</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">양정훈</div>
         <div class="mc-company">법무법인 베테랑</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">개인세무</span>
-        <div class="mc-avatar mc-av9">박</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">박성준</div>
         <div class="mc-company">박성준세무회계사무소</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">한의사</span>
-        <div class="mc-avatar mc-av10">변</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">변종훈</div>
         <div class="mc-company">태흥당한의원</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">개인보험</span>
-        <div class="mc-avatar mc-av11">이</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">이성우</div>
         <div class="mc-company">더베스트금융서비스</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">바른자세 습관지도</span>
-        <div class="mc-avatar mc-av12">이</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">이은주</div>
         <div class="mc-company">슬리밍고</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">인테리어 (상가)</span>
-        <div class="mc-avatar mc-av13">박</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">박주영</div>
         <div class="mc-company">스텔라디자인</div>
       </div>
 
       <div class="member-card">
         <span class="mc-badge">마케팅 AI 자동화</span>
-        <div class="mc-avatar mc-av0">김</div>
+        <div class="mc-bar"></div>
         <div class="mc-name">김종은</div>
         <div class="mc-company">삼칠</div>
       </div>
