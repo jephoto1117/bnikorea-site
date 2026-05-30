@@ -1266,12 +1266,16 @@
               <input type="text" id="f-job" placeholder="예: 세무사, IT개발, 마케팅" />
             </div>
             <div class="form-group">
-              <label>방문 희망일 <small style="color:var(--gray-400);font-weight:400">(매주 목요일)</small></label>
-              <input type="date" id="f-date" onchange="validateThursday(this)" />
+              <label>회사명</label>
+              <input type="text" id="f-company" placeholder="(주)예시" autocomplete="organization" />
             </div>
             <div class="form-group">
-              <label>문의사항</label>
-              <textarea id="f-msg" placeholder="궁금한 점을 자유롭게 적어주세요"></textarea>
+              <label>직함</label>
+              <input type="text" id="f-title" placeholder="대표, 이사, 팀장…" />
+            </div>
+            <div class="form-group">
+              <label>방문 희망일 <small style="color:var(--gray-400);font-weight:400">(매주 목요일)</small></label>
+              <input type="date" id="f-date" onchange="validateThursday(this)" />
             </div>
             <!-- 개인정보 동의 -->
             <div class="privacy-box">
@@ -1607,9 +1611,12 @@
     btn.disabled = true;
     btn.textContent = '신청 중…';
 
+    const company = document.getElementById('f-company').value.trim();
+    const title   = document.getElementById('f-title').value.trim();
     const { error } = await sb.from('bni_contacts').insert({
       name, phone: tel, field: job,
-      message: [date ? '방문희망일: ' + date : '', msg].filter(Boolean).join('\n') || null,
+      company: company || null,
+      message: [title ? '직함: ' + title : '', date ? '방문희망일: ' + date : ''].filter(Boolean).join('\n') || null,
     });
 
     if (error) {
@@ -1623,13 +1630,16 @@
       name,
       phone:      tel,
       field:      job,
-      visit_date: date || '미정',
-      message:    msg  || '없음',
+      company:    company || '미입력',
+      title:      title   || '미입력',
+      visit_date: date    || '미정',
+      message:    '없음',
     }).catch(() => {}); // 알림 실패해도 신청 완료로 처리
 
     btn.textContent = '✅ 신청 완료!';
     btn.style.background = '#22c55e';
-    ['f-name','f-tel','f-job','f-date','f-msg'].forEach(id => document.getElementById(id).value = '');
+    ['f-name','f-tel','f-job','f-company','f-title','f-date'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-privacy').checked = false;
     setTimeout(() => { btn.disabled = false; btn.textContent = '방문 신청하기 →'; btn.style.background = ''; }, 3000);
   }
 
