@@ -1140,23 +1140,29 @@
   let galleryData = [];
   let pendingImageUrl = '';
 
+  function compressImage(file, maxPx = 1200, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else       { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지 로드 실패')); };
+      img.src = url;
+    });
+  }
+
   async function uploadImageToStorage(file) {
-    const mime = file.type || 'image/jpeg';
-    const ext  = mime.split('/')[1]?.replace('jpeg','jpg') || 'jpg';
-    const rand = Math.random().toString(36).slice(2, 8);
-    const path = `img-${Date.now()}-${rand}.${ext}`;
-
-    const { data: uploadData, error } = await sb.storage
-      .from('bni-gallery')
-      .upload(path, file, { contentType: mime, cacheControl: '3600' });
-
-    if (error) {
-      console.error('Storage error:', JSON.stringify(error));
-      throw new Error(`[${error.statusCode||'?'}] ${error.message}`);
-    }
-
-    const { data } = sb.storage.from('bni-gallery').getPublicUrl(path);
-    return data.publicUrl;
+    return await compressImage(file);
   }
 
   function setGalleryPreview(src) {

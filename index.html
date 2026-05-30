@@ -1482,7 +1482,7 @@
     const grid = document.getElementById('reviews-grid');
     grid.innerHTML = data.map(r => {
       const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
-      const hasPhoto = r.photo_url && r.photo_url.trim().startsWith('http');
+      const hasPhoto = r.photo_url && (r.photo_url.startsWith('http') || r.photo_url.startsWith('data:'));
       const topHtml = hasPhoto
         ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}"
              onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'case-quote\\'>&quot;</div>')" />`
