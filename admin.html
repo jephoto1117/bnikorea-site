@@ -571,7 +571,7 @@
             <option value="3">⭐⭐⭐ 3점</option>
           </select>
         </div>
-        <div class="field-group"><label>매출 수치</label><input id="r-revenue" placeholder="계약 1,200만 원 달성" /></div>
+        <div class="field-group"><label>매출 수치</label><input id="r-revenue" type="text" inputmode="numeric" placeholder="숫자만 입력 (예: 12000000)" oninput="liveFormatRevenue(this)" onblur="blurFormatRevenue(this)" onfocus="focusRevenue(this)" /></div>
       </div>
       <div class="field-group"><label>후기 내용 *</label><textarea id="r-content" rows="4" placeholder="BNI에서 리퍼럴을 통해…"></textarea></div>
       <div class="field-group">
@@ -944,6 +944,30 @@
   }
   let pendingReviewImageUrl = '';
 
+  // ── 매출 수치 포맷 ──
+  function liveFormatRevenue(input) {
+    const raw = input.value.replace(/[^0-9]/g, '');
+    input.dataset.raw = raw;
+    if (raw) input.value = parseInt(raw).toLocaleString('ko-KR');
+    else     input.value = '';
+  }
+  function blurFormatRevenue(input) {
+    const raw = input.dataset.raw || input.value.replace(/[^0-9]/g, '');
+    if (raw) input.value = parseInt(raw).toLocaleString('ko-KR') + '원';
+    input.dataset.raw = raw;
+  }
+  function focusRevenue(input) {
+    const raw = input.dataset.raw || input.value.replace(/[^0-9]/g, '');
+    input.value = raw;
+    input.dataset.raw = raw;
+  }
+  function getRevenueValue() {
+    const input = document.getElementById('r-revenue');
+    const raw = input.dataset.raw || input.value.replace(/[^0-9]/g, '');
+    if (!raw) return null;
+    return parseInt(raw).toLocaleString('ko-KR') + '원';
+  }
+
   function handleReviewFile(file) {
     if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다','error'); return; }
     const reader = new FileReader();
@@ -1007,7 +1031,10 @@
     document.getElementById('r-name').value    = r.member_name||'';
     document.getElementById('r-title').value   = r.member_title||'';
     document.getElementById('r-rating').value  = r.rating||5;
-    document.getElementById('r-revenue').value = r.revenue_text||'';
+    const revenueEl = document.getElementById('r-revenue');
+    const rawRevenue = (r.revenue_text||'').replace(/[^0-9]/g,'');
+    revenueEl.value = rawRevenue ? parseInt(rawRevenue).toLocaleString('ko-KR')+'원' : '';
+    revenueEl.dataset.raw = rawRevenue;
     document.getElementById('r-content').value = r.content||'';
     if (r.photo_url) {
       setReviewPreview(r.photo_url);
@@ -1045,7 +1072,7 @@
       member_name:  name,
       member_title: document.getElementById('r-title').value.trim()||null,
       rating:       parseInt(document.getElementById('r-rating').value)||5,
-      revenue_text: document.getElementById('r-revenue').value.trim()||null,
+      revenue_text: getRevenueValue(),
       content,
       photo_url:    photoUrl,
     };
