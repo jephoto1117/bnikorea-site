@@ -970,18 +970,21 @@
 
   function handleReviewFile(file) {
     if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다','error'); return; }
+    pendingReviewImageUrl = file; // File 객체 보존
     const reader = new FileReader();
-    reader.onload = e => setReviewPreview(e.target.result);
+    reader.onload = e => setReviewPreview(e.target.result); // 미리보기만
     reader.readAsDataURL(file);
-    pendingReviewImageUrl = file;
   }
 
   function setReviewPreview(src) {
     const preview = document.getElementById('r-preview');
     preview.src = src; preview.classList.add('show');
-    document.querySelector('#r-dropzone .dz-icon').style.display = 'none';
-    document.querySelector('#r-dropzone .dz-text').style.display = 'none';
-    pendingReviewImageUrl = src;
+    const dz = document.getElementById('r-dropzone');
+    if (dz) {
+      const icon = dz.querySelector('.dz-icon'); if (icon) icon.style.display = 'none';
+      const text = dz.querySelector('.dz-text'); if (text) text.style.display = 'none';
+    }
+    // pendingReviewImageUrl 건드리지 않음 — File 객체 보존
   }
 
   function initReviewDropzone() {
@@ -1037,6 +1040,7 @@
     revenueEl.dataset.raw = rawRevenue;
     document.getElementById('r-content').value = r.content||'';
     if (r.photo_url) {
+      pendingReviewImageUrl = r.photo_url; // 기존 URL 보존
       setReviewPreview(r.photo_url);
       document.getElementById('r-photo').value = r.photo_url;
     }
@@ -1138,8 +1142,9 @@
 
   async function uploadImageToStorage(file) {
     const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
-    const path = `gallery-${Date.now()}.${ext}`;
-    const { error } = await sb.storage.from('bni-gallery').upload(path, file, { contentType: file.type, upsert: true });
+    const rand = Math.random().toString(36).slice(2, 8);
+    const path = `img-${Date.now()}-${rand}.${ext}`;
+    const { error } = await sb.storage.from('bni-gallery').upload(path, file, { contentType: file.type });
     if (error) throw error;
     const { data: { publicUrl } } = sb.storage.from('bni-gallery').getPublicUrl(path);
     return publicUrl;
@@ -1148,17 +1153,20 @@
   function setGalleryPreview(src) {
     const preview = document.getElementById('g-preview');
     preview.src = src; preview.classList.add('show');
-    document.querySelector('.drop-zone .dz-icon').style.display = 'none';
-    document.querySelector('.drop-zone .dz-text').style.display = 'none';
-    pendingImageUrl = src;
+    const dz = document.getElementById('g-dropzone');
+    if (dz) {
+      const icon = dz.querySelector('.dz-icon'); if (icon) icon.style.display = 'none';
+      const text = dz.querySelector('.dz-text'); if (text) text.style.display = 'none';
+    }
+    // pendingImageUrl은 여기서 건드리지 않음 — File 객체 보존
   }
 
   function handleGalleryFile(file) {
     if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 가능합니다', 'error'); return; }
+    pendingImageUrl = file; // File 객체 저장 (덮어쓰지 않음)
     const reader = new FileReader();
-    reader.onload = e => setGalleryPreview(e.target.result);
+    reader.onload = e => setGalleryPreview(e.target.result); // 미리보기만
     reader.readAsDataURL(file);
-    pendingImageUrl = file;
   }
 
   function initGalleryDropzone() {
@@ -1207,8 +1215,11 @@
     document.getElementById('g-order').value = '1';
     const preview = document.getElementById('g-preview');
     preview.src = ''; preview.classList.remove('show');
-    document.querySelector('.drop-zone .dz-icon').style.display = '';
-    document.querySelector('.drop-zone .dz-text').style.display = '';
+    const dz = document.getElementById('g-dropzone');
+    if (dz) {
+      const icon = dz.querySelector('.dz-icon'); if (icon) icon.style.display = '';
+      const text = dz.querySelector('.dz-text'); if (text) text.style.display = '';
+    }
     document.getElementById('g-url-wrap').style.display = 'none';
   }
   function openGalleryModal(reset=true) {
@@ -1225,6 +1236,7 @@
     document.getElementById('g-caption').value = g.caption||'';
     document.getElementById('g-order').value   = g.display_order||1;
     if (g.image_url) {
+      pendingImageUrl = g.image_url; // 기존 URL 보존
       setGalleryPreview(g.image_url);
       document.getElementById('g-url').value = g.image_url;
     }

@@ -532,8 +532,8 @@
       margin-bottom: 12px; font-family: Georgia, serif;
     }
     .case-photo {
-      width: 100%; height: auto; max-height: 220px;
-      object-fit: contain; border-radius: 10px;
+      width: 100%; aspect-ratio: 16/9;
+      object-fit: cover; border-radius: 10px;
       margin-bottom: 14px; display: block;
       background: var(--gray-100);
     }
@@ -693,13 +693,14 @@
     .gallery-item {
       border-radius:var(--radius); overflow:hidden;
       position:relative; cursor:pointer;
+      aspect-ratio:4/3;
       transition:transform .2s, box-shadow .2s;
       background:var(--gray-100);
     }
     .gallery-item:hover { transform:scale(1.02); box-shadow:var(--shadow-lg); }
     .gallery-item img {
-      width:100%; height:auto; max-height:280px;
-      object-fit:contain; display:block;
+      width:100%; height:100%;
+      object-fit:cover; display:block;
     }
     .gallery-caption {
       position:absolute; bottom:0; left:0; right:0;
@@ -1481,8 +1482,9 @@
     const grid = document.getElementById('reviews-grid');
     grid.innerHTML = data.map(r => {
       const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
-      const topHtml = r.photo_url
-        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}" />`
+      const hasPhoto = r.photo_url && r.photo_url.trim().startsWith('http');
+      const topHtml = hasPhoto
+        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'case-quote',textContent:'\"'}))" />`
         : `<div class="case-quote">"</div>`;
       return `
         <div class="case-card reveal">
@@ -1514,7 +1516,8 @@
     lbImages = data;
     grid.innerHTML = data.map((g, i) => `
       <div class="gallery-item" onclick="lbOpen(${i})">
-        <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}" loading="lazy" />
+        <img src="${g.image_url}" alt="${g.caption || '미팅 갤러리'}" loading="lazy"
+             onerror="this.closest('.gallery-item').style.display='none'" />
         ${g.caption ? `<div class="gallery-caption">${g.caption}</div>` : ''}
       </div>`).join('');
   }
