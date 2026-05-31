@@ -1210,8 +1210,8 @@
 
   function applyCrop() {
     if (!cropInst) return;
-    // 최대 400px, 품질 0.75로 압축 (50% 사이즈)
-    const canvas = cropInst.getCroppedCanvas({ maxWidth: 400, maxHeight: 400 });
+    // 최대 800px, 품질 0.75로 압축
+    const canvas = cropInst.getCroppedCanvas({ maxWidth: 800, maxHeight: 800 });
     const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
     const kb = Math.round(dataUrl.length * 0.75 / 1024);
     console.log(`Cropped image: ${kb}KB`);
