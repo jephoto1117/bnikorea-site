@@ -1356,9 +1356,18 @@
     const grid = document.getElementById('reviews-grid');
     grid.innerHTML = data.map(r => {
       const stars = '⭐'.repeat(Math.min(r.rating || 5, 5));
-      const hasPhoto = r.photo_url && (r.photo_url.startsWith('http') || r.photo_url.startsWith('data:'));
+      const rawPhoto = r.photo_url || '';
+      const hasPhoto = rawPhoto && (rawPhoto.startsWith('http') || rawPhoto.startsWith('data:'));
+      let photoSrc = rawPhoto, photoW = '50%', photoRatio = '1/1';
+      if (hasPhoto && rawPhoto.includes('#')) {
+        const [base, meta] = rawPhoto.split('#');
+        photoSrc = base;
+        const wM = meta.match(/w(\d+)/); if (wM) photoW = wM[1] + '%';
+        const rM = meta.match(/r(.+)/);  if (rM) photoRatio = rM[1];
+      }
       const topHtml = hasPhoto
-        ? `<img class="case-photo" src="${r.photo_url}" alt="${r.member_name}"
+        ? `<img class="case-photo" src="${photoSrc}" alt="${r.member_name}"
+             style="width:${photoW};aspect-ratio:${photoRatio};object-fit:${photoRatio==='auto'?'contain':'cover'}"
              onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'case-quote\\'>&quot;</div>')" />`
         : `<div class="case-quote">"</div>`;
       return `

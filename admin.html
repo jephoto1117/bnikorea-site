@@ -603,6 +603,29 @@
           <input id="r-photo" placeholder="https://..." style="width:100%;padding:10px 13px;border:1.5px solid var(--gray-2);border-radius:9px;font-size:.88rem;font-family:inherit;background:var(--gray-1);color:var(--gray-8);outline:none" />
         </div>
       </div>
+
+      <!-- 미리보기 패널 -->
+      <div id="r-preview-panel" style="display:none">
+        <div style="font-size:.78rem;font-weight:700;color:var(--gray-6);margin-bottom:10px">📱 메인 페이지 미리보기</div>
+        <div style="background:var(--gray-1);border:1px solid var(--gray-2);border-radius:10px;padding:16px;text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center">
+          <img id="r-preview-main" style="border-radius:8px;display:block;margin:0 auto;max-width:100%;transition:width .2s" alt="미리보기" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+          <span style="font-size:.75rem;color:var(--gray-4);white-space:nowrap">크기 조절</span>
+          <input type="range" id="r-size-slider" min="20" max="100" value="50" step="5"
+            style="flex:1;accent-color:var(--blue);cursor:pointer"
+            oninput="adjustReviewPreviewSize(this.value)" />
+          <span id="r-size-label" style="font-size:.8rem;font-weight:700;color:var(--blue);min-width:36px;text-align:right">50%</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <span style="font-size:.72rem;color:var(--gray-4)">비율</span>
+          <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('auto')">원본</button>
+          <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('1/1')">1:1</button>
+          <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('4/3')">4:3</button>
+          <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('16/9')">16:9</button>
+          <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('3/4')">3:4</button>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-review')">취소</button>
@@ -1031,7 +1054,36 @@
       const icon = dz.querySelector('.dz-icon'); if (icon) icon.style.display = 'none';
       const text = dz.querySelector('.dz-text'); if (text) text.style.display = 'none';
     }
-    // pendingReviewImageUrl 건드리지 않음 — File 객체 보존
+    // 미리보기 패널 표시
+    const panel = document.getElementById('r-preview-panel');
+    if (panel) {
+      panel.style.display = 'block';
+      const mainImg = document.getElementById('r-preview-main');
+      if (mainImg) {
+        mainImg.src = src;
+        const sz = document.getElementById('r-size-slider').value;
+        mainImg.style.width = sz + '%';
+        mainImg.style.aspectRatio = currentReviewRatio;
+        mainImg.style.objectFit = 'cover';
+      }
+    }
+  }
+
+  let currentReviewRatio = 'auto';
+
+  function adjustReviewPreviewSize(val) {
+    document.getElementById('r-size-label').textContent = val + '%';
+    const img = document.getElementById('r-preview-main');
+    if (img) img.style.width = val + '%';
+  }
+
+  function setReviewPreviewRatio(ratio) {
+    currentReviewRatio = ratio;
+    const img = document.getElementById('r-preview-main');
+    if (img) {
+      img.style.aspectRatio = ratio;
+      img.style.objectFit = ratio === 'auto' ? 'contain' : 'cover';
+    }
   }
 
   function initReviewDropzone() {
@@ -1064,6 +1116,12 @@
     if (icon) icon.style.display = '';
     if (text) text.style.display = '';
     document.getElementById('r-url-wrap').style.display = 'none';
+    document.getElementById('r-preview-panel').style.display = 'none';
+    const mainImg = document.getElementById('r-preview-main');
+    if (mainImg) { mainImg.src = ''; mainImg.style.width = '50%'; mainImg.style.aspectRatio = 'auto'; }
+    document.getElementById('r-size-slider').value = 50;
+    document.getElementById('r-size-label').textContent = '50%';
+    currentReviewRatio = 'auto';
   }
 
   function openReviewModal(reset=true) {
@@ -1087,9 +1145,20 @@
     revenueEl.dataset.raw = rawRevenue;
     document.getElementById('r-content').value = r.content||'';
     if (r.photo_url) {
-      pendingReviewImageUrl = r.photo_url; // 기존 URL 보존
-      setReviewPreview(r.photo_url);
-      document.getElementById('r-photo').value = r.photo_url;
+      // 크기/비율 메타 파싱
+      const parts = r.photo_url.split('#');
+      const cleanUrl = parts[0];
+      const meta = parts[1] || '';
+      const wMatch = meta.match(/w(\d+)/);
+      const rMatch = meta.match(/r(.+)/);
+      if (wMatch) {
+        document.getElementById('r-size-slider').value = wMatch[1];
+        document.getElementById('r-size-label').textContent = wMatch[1] + '%';
+      }
+      if (rMatch) { currentReviewRatio = rMatch[1]; }
+      pendingReviewImageUrl = cleanUrl;
+      setReviewPreview(cleanUrl);
+      document.getElementById('r-photo').value = cleanUrl;
     }
     document.getElementById('review-modal-title').textContent = '후기 수정';
     openReviewModal(false);
@@ -1111,6 +1180,14 @@
       } else {
         const urlVal = document.getElementById('r-photo').value.trim();
         if (urlVal) photoUrl = urlVal;
+      }
+      // 크기/비율 설정 인코딩 (예: #w60,r4/3)
+      if (photoUrl) {
+        const w = document.getElementById('r-size-slider').value;
+        const r = currentReviewRatio;
+        const meta = `w${w},r${r}`;
+        const base = photoUrl.split('#')[0];
+        photoUrl = base + '#' + meta;
       }
     } catch(e) {
       toast('이미지 오류: ' + e.message,'error');
