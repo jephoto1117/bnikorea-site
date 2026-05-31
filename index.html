@@ -1359,15 +1359,18 @@
       const rawPhoto = r.photo_url || '';
       const hasPhoto = rawPhoto && (rawPhoto.startsWith('http') || rawPhoto.startsWith('data:'));
       let photoSrc = rawPhoto, photoW = '50%', photoRatio = '1/1';
+      let photoAlign = 'center';
       if (hasPhoto && rawPhoto.includes('#')) {
         const [base, meta] = rawPhoto.split('#');
         photoSrc = base;
-        const wM = meta.match(/w(\d+)/); if (wM) photoW = wM[1] + '%';
-        const rM = meta.match(/r(.+)/);  if (rM) photoRatio = rM[1];
+        const wM = meta.match(/w(\d+)/);           if (wM) photoW = wM[1] + '%';
+        const rM = meta.match(/r([^,]+)/);         if (rM) photoRatio = rM[1];
+        const aM = meta.match(/a(left|center|right)/); if (aM) photoAlign = aM[1];
       }
+      const alignMap = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
       const topHtml = hasPhoto
         ? `<img class="case-photo" src="${photoSrc}" alt="${r.member_name}"
-             style="width:${photoW};aspect-ratio:${photoRatio};object-fit:${photoRatio==='auto'?'contain':'cover'}"
+             style="width:${photoW};aspect-ratio:${photoRatio};object-fit:${photoRatio==='auto'?'contain':'cover'};margin:${alignMap[photoAlign]||'0 auto'};display:block"
              onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\\'case-quote\\'>&quot;</div>')" />`
         : `<div class="case-quote">"</div>`;
       return `

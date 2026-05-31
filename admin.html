@@ -625,6 +625,12 @@
           <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('16/9')">16:9</button>
           <button class="btn btn-sm btn-secondary" onclick="setReviewPreviewRatio('3/4')">3:4</button>
         </div>
+        <div style="display:flex;gap:6px;margin-top:8px;align-items:center">
+          <span style="font-size:.72rem;color:var(--gray-4)">정렬</span>
+          <button class="btn btn-sm btn-secondary" id="r-align-left"   onclick="setReviewAlign('left')"  >◀ 좌측</button>
+          <button class="btn btn-sm btn-secondary" id="r-align-center" onclick="setReviewAlign('center')">— 가운데</button>
+          <button class="btn btn-sm btn-secondary" id="r-align-right"  onclick="setReviewAlign('right')" >▶ 우측</button>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1070,6 +1076,7 @@
   }
 
   let currentReviewRatio = 'auto';
+  let currentReviewAlign = 'center';
 
   function adjustReviewPreviewSize(val) {
     document.getElementById('r-size-label').textContent = val + '%';
@@ -1084,6 +1091,19 @@
       img.style.aspectRatio = ratio;
       img.style.objectFit = ratio === 'auto' ? 'contain' : 'cover';
     }
+  }
+
+  function setReviewAlign(align) {
+    currentReviewAlign = align;
+    const img = document.getElementById('r-preview-main');
+    if (!img) return;
+    const map = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
+    img.style.margin = map[align];
+    // 활성 버튼 표시
+    ['left','center','right'].forEach(a => {
+      const btn = document.getElementById('r-align-' + a);
+      if (btn) btn.className = 'btn btn-sm ' + (a === align ? 'btn-primary' : 'btn-secondary');
+    });
   }
 
   function initReviewDropzone() {
@@ -1122,6 +1142,11 @@
     document.getElementById('r-size-slider').value = 50;
     document.getElementById('r-size-label').textContent = '50%';
     currentReviewRatio = 'auto';
+    currentReviewAlign = 'center';
+    ['left','center','right'].forEach(a => {
+      const btn = document.getElementById('r-align-' + a);
+      if (btn) btn.className = 'btn btn-sm ' + (a === 'center' ? 'btn-primary' : 'btn-secondary');
+    });
   }
 
   function openReviewModal(reset=true) {
@@ -1150,12 +1175,14 @@
       const cleanUrl = parts[0];
       const meta = parts[1] || '';
       const wMatch = meta.match(/w(\d+)/);
-      const rMatch = meta.match(/r(.+)/);
+      const rMatch = meta.match(/r([^,]+)/);
+      const aMatch = meta.match(/a(left|center|right)/);
       if (wMatch) {
         document.getElementById('r-size-slider').value = wMatch[1];
         document.getElementById('r-size-label').textContent = wMatch[1] + '%';
       }
       if (rMatch) { currentReviewRatio = rMatch[1]; }
+      if (aMatch) { setTimeout(() => setReviewAlign(aMatch[1]), 100); }
       pendingReviewImageUrl = cleanUrl;
       setReviewPreview(cleanUrl);
       document.getElementById('r-photo').value = cleanUrl;
@@ -1185,7 +1212,7 @@
       if (photoUrl) {
         const w = document.getElementById('r-size-slider').value;
         const r = currentReviewRatio;
-        const meta = `w${w},r${r}`;
+        const meta = `w${w},r${r},a${currentReviewAlign}`;
         const base = photoUrl.split('#')[0];
         photoUrl = base + '#' + meta;
       }
