@@ -23,7 +23,57 @@ $KW=@(
  @{slug="부산비즈니스커뮤니티"; kw="부산 비즈니스 커뮤니티"; intent="전문가 비즈니스 커뮤니티"},
  @{slug="부산커피챗"; kw="부산 커피챗"; intent="비즈니스 커피챗·네트워킹"},
  @{slug="부산네트워킹모임"; kw="부산 네트워킹 모임"; intent="부산 비즈니스 네트워킹"},
- @{slug="부산BNI"; kw="부산 BNI"; intent="부산 BNI 오션챕터"}
+ @{slug="부산BNI"; kw="부산 BNI"; intent="부산 BNI 오션챕터"},
+ @{slug="부산CEO모임"; kw="부산 CEO 모임"; intent="대표·CEO 비즈니스 네트워킹"},
+ @{slug="부산대표모임"; kw="부산 대표 모임"; intent="회사 대표 비즈니스 모임"},
+ @{slug="부산경영인모임"; kw="부산 경영인 모임"; intent="경영인 리퍼럴 네트워크"},
+ @{slug="부산오너모임"; kw="부산 오너 모임"; intent="사업주·오너 네트워킹"},
+ @{slug="부산소상공인모임"; kw="부산 소상공인 모임"; intent="소상공인 상생 커뮤니티"},
+ @{slug="부산프리랜서모임"; kw="부산 프리랜서 모임"; intent="프리랜서 비즈니스 모임"},
+ @{slug="부산전문직모임"; kw="부산 전문직 모임"; intent="전문직 네트워킹"},
+ @{slug="부산스타트업모임"; kw="부산 스타트업 모임"; intent="스타트업 네트워킹"},
+ @{slug="부산예비창업자모임"; kw="부산 예비창업자 모임"; intent="예비창업자 네트워킹"},
+ @{slug="부산청년창업모임"; kw="부산 청년창업 모임"; intent="청년 창업가 네트워크"},
+ @{slug="부산인맥모임"; kw="부산 인맥 모임"; intent="비즈니스 인맥 네트워킹"},
+ @{slug="부산리퍼럴"; kw="부산 리퍼럴"; intent="리퍼럴 마케팅 네트워크"},
+ @{slug="부산소개모임"; kw="부산 소개 모임"; intent="고객 소개 네트워킹"},
+ @{slug="부산추천마케팅"; kw="부산 추천 마케팅"; intent="입소문·추천 마케팅 모임"},
+ @{slug="부산경제인모임"; kw="부산 경제인 모임"; intent="지역 경제인 커뮤니티"},
+ @{slug="부산비즈니스런치"; kw="부산 비즈니스 런치"; intent="점심 비즈니스 네트워킹"},
+ @{slug="부산조찬세미나"; kw="부산 조찬 세미나"; intent="조찬 비즈니스 세미나"},
+ @{slug="부산아침모임"; kw="부산 아침 모임"; intent="아침 비즈니스 네트워킹"},
+ @{slug="부산조찬회"; kw="부산 조찬회"; intent="조찬 네트워킹 모임"},
+ @{slug="부산영업모임"; kw="부산 영업 모임"; intent="영업·세일즈 네트워킹"},
+ @{slug="부산세일즈모임"; kw="부산 세일즈 모임"; intent="세일즈 리드 네트워크"},
+ @{slug="부산마케팅모임"; kw="부산 마케팅 모임"; intent="마케팅 전문가 네트워킹"},
+ @{slug="부산비즈니스세미나"; kw="부산 비즈니스 세미나"; intent="비즈니스 세미나·네트워킹"},
+ @{slug="부산비즈니스조찬"; kw="부산 비즈니스 조찬"; intent="비즈니스 조찬 미팅"},
+ @{slug="부산비즈니스파트너"; kw="부산 비즈니스 파트너"; intent="사업 파트너 매칭"},
+ @{slug="부산사업파트너"; kw="부산 사업 파트너"; intent="사업 파트너 네트워크"},
+ @{slug="부산협업모임"; kw="부산 협업 모임"; intent="비즈니스 협업 네트워킹"},
+ @{slug="부산상공인모임"; kw="부산 상공인 모임"; intent="상공인 비즈니스 커뮤니티"},
+ @{slug="부산비즈니스인맥"; kw="부산 비즈니스 인맥"; intent="비즈니스 인맥 형성"},
+ @{slug="부산전문가모임"; kw="부산 전문가 모임"; intent="분야별 전문가 네트워킹"},
+ @{slug="부산서면비즈니스모임"; kw="부산 서면 비즈니스 모임"; intent="서면 일대 비즈니스 네트워킹"},
+ @{slug="부산해운대사업가모임"; kw="부산 해운대 사업가 모임"; intent="해운대 사업가 네트워킹"},
+ @{slug="부산비즈니스그룹"; kw="부산 비즈니스 그룹"; intent="비즈니스 그룹 네트워킹"},
+ @{slug="부산사업모임"; kw="부산 사업 모임"; intent="사업가 네트워킹"},
+ @{slug="부산비즈니스네트워크"; kw="부산 비즈니스 네트워크"; intent="비즈니스 네트워크"},
+ @{slug="부산리더스클럽"; kw="부산 리더스 클럽"; intent="비즈니스 리더 커뮤니티"},
+ @{slug="부산비즈니스클럽"; kw="부산 비즈니스 클럽"; intent="비즈니스 클럽 네트워킹"},
+ @{slug="부산CEO조찬"; kw="부산 CEO 조찬"; intent="CEO 조찬 모임"},
+ @{slug="부산창업네트워킹"; kw="부산 창업 네트워킹"; intent="창업가 네트워킹"},
+ @{slug="부산사업가커뮤니티"; kw="부산 사업가 커뮤니티"; intent="사업가 커뮤니티"},
+ @{slug="부산비즈니스만남"; kw="부산 비즈니스 만남"; intent="비즈니스 만남·교류"},
+ @{slug="부산교류모임"; kw="부산 교류 모임"; intent="비즈니스 교류 네트워킹"},
+ @{slug="부산BNI가입"; kw="부산 BNI 가입"; intent="부산 BNI 가입 안내"},
+ @{slug="부산BNI오션"; kw="부산 BNI 오션"; intent="BNI 오션챕터 부산"},
+ @{slug="BNI오션챕터"; kw="BNI 오션챕터"; intent="BNI 오션챕터 부산"},
+ @{slug="부산BNI후기"; kw="부산 BNI 후기"; intent="BNI 오션챕터 참관 후기"},
+ @{slug="부산BNI비용"; kw="부산 BNI 비용"; intent="BNI 가입·회비 안내"},
+ @{slug="부산BNI참관"; kw="부산 BNI 참관"; intent="BNI 미팅 무료 참관"},
+ @{slug="부산BNI챕터"; kw="부산 BNI 챕터"; intent="부산 BNI 챕터 안내"},
+ @{slug="부산비즈니스리퍼럴"; kw="부산 비즈니스 리퍼럴"; intent="비즈니스 리퍼럴 네트워크"}
 )
 
 # 오션챕터 멤버 분야 (setup.sql 기준 14)
@@ -44,13 +94,13 @@ function Build-BniPage($item){
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>$kw — 부산BNI 오션챕터 비즈니스 네트워킹</title>
-<meta name="description" content="$kw 찾으신다면 부산에서 떠오르는 BNI 오션챕터. 전문가 14인, 매주 목요일 아바니호텔 조찬 리퍼럴 미팅. 업종당 1명 독점. 무료 방문 신청 $TEL">
+<meta name="description" content="$kw 찾으신다면 부산에서 떠오르는 BNI 오션챕터. 매주 목요일 아바니호텔 조찬 리퍼럴 미팅, 업종당 1명 독점 비즈니스 네트워킹. 무료 방문 신청 $TEL">
 <meta name="keywords" content="$kw,부산 조찬모임,부산 비즈니스 모임,부산 사업가 모임,부산 창업 모임,BNI 오션챕터,부산BNI,부산 네트워킹,부산 커피챗,부산 기업인 모임">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <link rel="canonical" href="$url">
 <meta property="og:type" content="website">
 <meta property="og:title" content="$kw — 부산BNI 오션챕터">
-<meta property="og:description" content="$kw — 부산에서 떠오르는 BNI 오션챕터. 매주 목요일 아바니호텔, 전문가 14인 리퍼럴 네트워킹. 무료 방문 신청.">
+<meta property="og:description" content="$kw — 부산에서 떠오르는 BNI 오션챕터. 매주 목요일 아바니호텔 리퍼럴 네트워킹, 업종당 1명 독점. 무료 방문 신청.">
 <meta property="og:url" content="$url">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"부산BNI OCEAN 챕터","alternateName":["BNI 오션챕터","부산BNI","BNI OCEAN"],"url":"https://bnikorea.us","description":"$kw - 부산 지역 전문가 비즈니스 네트워킹 그룹. 매주 목요일 아바니호텔 리퍼럴 미팅.","telephone":"$TEL","email":"gkxos@naver.com","address":{"@type":"PostalAddress","addressLocality":"부산","addressCountry":"KR"},"event":{"@type":"Event","name":"부산BNI OCEAN 정기 미팅","description":"매주 목요일 오전 6:30 아바니호텔 BNI 오션챕터 정기 네트워킹 미팅","location":{"@type":"Place","name":"아바니호텔 부산"}}}
@@ -116,19 +166,12 @@ footer strong{color:#e5e7eb}
 <section class="hero">
   <span class="badge">부산에서 떠오르는 BNI 챕터</span>
   <h1>$kw,<br><em>BNI 오션챕터</em>에서 시작하세요</h1>
-  <p>$intent — 부산 BNI 오션챕터는 매주 목요일 아침 아바니호텔에서 전문가 14인이 모이는 리퍼럴 네트워킹 그룹입니다. 업종당 단 1명만 참여하는 독점 구조로, 서로의 사업을 추천으로 키웁니다.</p>
+  <p>$intent — 부산 BNI 오션챕터는 매주 목요일 아침 아바니호텔에서 각 분야 전문가들이 모이는 리퍼럴 네트워킹 그룹입니다. 업종당 단 1명만 참여하는 독점 구조로, 서로의 사업을 추천으로 키웁니다.</p>
   <div class="hero-btns">
     <a class="btn btn-acc" href="$MAIN">오션챕터 방문 신청 →</a>
     <a class="btn btn-out" href="tel:$($TEL.Replace('-',''))">전화 상담 $TEL</a>
   </div>
 </section>
-
-<div class="stats">
-  <div class="stat"><div class="v">14<span>인</span></div><div class="l">전문가 멤버</div></div>
-  <div class="stat"><div class="v">350<span>+</span></div><div class="l">월 평균 추천</div></div>
-  <div class="stat"><div class="v">35<span>억+</span></div><div class="l">누적 리퍼럴 매출</div></div>
-  <div class="stat"><div class="v">매주<span> 목</span></div><div class="l">아바니호텔 미팅</div></div>
-</div>
 
 <div class="container">
   <h2 class="sec-title">$kw 찾는다면, 오션챕터</h2>
@@ -137,8 +180,8 @@ footer strong{color:#e5e7eb}
   <h2 class="sec-title">오션챕터가 다른 이유</h2>
   <div class="grid3">
     <div class="card"><div class="ic">🤝</div><h3>업종당 1명 독점</h3><p>같은 업종은 한 명만 참여합니다. 경쟁 없이 해당 분야 고객 추천을 독점적으로 받습니다.</p></div>
-    <div class="card"><div class="ic">📈</div><h3>실질 매출 리퍼럴</h3><p>월 350건 이상의 추천이 오갑니다. 누적 35억 원 이상의 실제 거래가 멤버 간에 발생했습니다.</p></div>
-    <div class="card"><div class="ic">🌏</div><h3>글로벌 네트워크</h3><p>전 세계 11,000개 챕터와 연결된 글로벌 비즈니스 네트워크의 부산 거점입니다.</p></div>
+    <div class="card"><div class="ic">📈</div><h3>실질 매출 리퍼럴</h3><p>검증된 추천(리퍼럴)이 꾸준히 오가며, 멤버 간 실제 거래와 매출로 이어집니다.</p></div>
+    <div class="card"><div class="ic">🌏</div><h3>글로벌 네트워크</h3><p>전 세계에 퍼진 BNI 글로벌 비즈니스 네트워크와 연결된 부산 거점 챕터입니다.</p></div>
   </div>
 
   <h2 class="sec-title">오션챕터 전문가 분야</h2>
@@ -156,7 +199,7 @@ footer strong{color:#e5e7eb}
   <h2 class="sec-title">자주 묻는 질문</h2>
   <div class="faq-list">
     <details class="faq"><summary class="faq-q">$kw에 처음인데 그냥 방문해도 되나요?</summary><div class="faq-a">네, 첫 방문은 무료이며 누구나 신청 가능합니다. 사전 신청 후 매주 목요일 오전 미팅에 참관하여 분위기와 멤버들을 직접 확인하실 수 있습니다. <a href="$MAIN" style="color:#1a4fc4;font-weight:700">방문 신청 페이지</a>에서 신청하세요.</div></details>
-    <details class="faq"><summary class="faq-q">BNI 오션챕터는 어떤 모임인가요?</summary><div class="faq-a">BNI(Business Network International)는 전 세계 11,000개 챕터를 둔 세계 최대 비즈니스 리퍼럴 네트워크입니다. 오션챕터는 부산에서 빠르게 성장 중인 챕터로, 업종당 1명 독점 원칙 아래 전문가 14인이 매주 추천을 주고받습니다.</div></details>
+    <details class="faq"><summary class="faq-q">BNI 오션챕터는 어떤 모임인가요?</summary><div class="faq-a">BNI(Business Network International)는 전 세계 11,000개 챕터를 둔 세계 최대 비즈니스 리퍼럴 네트워크입니다. 오션챕터는 부산에서 빠르게 성장 중인 챕터로, 업종당 1명 독점 원칙 아래 각 분야 전문가들이 매주 추천을 주고받습니다.</div></details>
     <details class="faq"><summary class="faq-q">조찬 모임은 몇 시에 어디서 진행되나요?</summary><div class="faq-a">매주 목요일 오전 6:30, 부산 아바니호텔에서 진행됩니다. 아침 시간을 활용해 하루를 비즈니스 네트워킹으로 시작할 수 있습니다.</div></details>
     <details class="faq"><summary class="faq-q">같은 업종이 이미 있으면 참여할 수 없나요?</summary><div class="faq-a">오션챕터는 업종당 1명 독점 원칙을 따릅니다. 해당 업종 자리가 비어 있다면 참여 가능하며, 자리가 찼다면 대기 또는 인근 챕터를 안내해 드립니다. 자세한 사항은 방문 신청 시 상담받으실 수 있습니다.</div></details>
   </div>
