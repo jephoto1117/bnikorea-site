@@ -5,6 +5,35 @@
   var SB_URL = 'https://vfjbnbmunzhlarrbuapf.supabase.co';
   var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmamJuYm11bnpobGFycmJ1YXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1ODM4ODcsImV4cCI6MjA5MTE1OTg4N30.9euk6s8jBLp8eP9awy1LdwEQA4scaHKH3zkTy1mBF1g';
 
+  // EmailJS (메인 폼과 동일 설정) — Supabase 저장 후 Gmail 알림 발송
+  var EJS_PUBLIC = 'SqTjES7SotxqqqtDs';
+  var EJS_SERVICE = 'service_ekh66la';
+  var EJS_TEMPLATE = 'template_xwrt5cu';
+
+  function loadEjs(cb) {
+    if (window.emailjs) return cb();
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    s.onload = function () { cb(); }; s.onerror = function () { cb('load-fail'); };
+    document.head.appendChild(s);
+  }
+
+  function notifyEmail(p) {
+    loadEjs(function (err) {
+      if (err || !window.emailjs) return;
+      try { window.emailjs.init({ publicKey: EJS_PUBLIC }); } catch (e) {}
+      window.emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+        name: p.name,
+        phone: p.phone,
+        field: p.field,
+        company: p.region || '미입력',
+        title: p.field + ' 상담신청',
+        visit_date: '-',
+        message: p.memo || '없음'
+      }).catch(function () {}); // 알림 실패해도 신청은 완료 처리
+    });
+  }
+
   var CSS = '' +
     '.consult-box{background:#fff;border:1px solid #dde3ef;border-radius:12px;padding:20px 18px;margin:6px 0}' +
     '.consult-box h3{font-size:16px;font-weight:900;color:#0d2e8a;margin-bottom:4px}' +
@@ -74,6 +103,7 @@
             msg.className = 'msg err'; msg.textContent = '오류가 발생했습니다. 전화로 문의해 주세요.';
             btn.disabled = false; btn.textContent = '무료 상담 신청하기 →';
           } else {
+            notifyEmail({ name: name, phone: phone, field: cat, region: region, memo: memo });
             el.querySelector('.consult-box').innerHTML =
               '<h3>✅ 신청이 접수되었습니다</h3>' +
               '<div class="sub" style="margin-top:8px">담당자가 확인 후 입력하신 연락처로 빠르게 연락드리겠습니다. 감사합니다.</div>';
