@@ -52,9 +52,10 @@ foreach ($folder in $cats.Keys) {
     }
     if (-not $area) { $errors++; continue }
 
-    # ① 헤더 로고
+    # ① 헤더 로고 + 타이틀 브랜드
     $c = $c.Replace("즐거운 <span>탱이네</span>", "마케팅 플레이스 <span>블로그 홍보 문의</span>")
     $c = $c.Replace("즐거운 탱이네", "마케팅 플레이스 블로그 홍보 문의")
+    $c = $c.Replace("즐거운탱이네", "마케팅 플레이스")   # <title> 등 붙여쓴 옛 상호
 
     # ② 인트로 박스 삭제
     $c = [regex]::Replace($c, '(?s)<p class="intro-box"[^>]*>.*?</p>', '')

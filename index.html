@@ -657,6 +657,129 @@
     ::-webkit-scrollbar-track { background: var(--gray-100); }
     ::-webkit-scrollbar-thumb { background: var(--blue-light); border-radius: 3px; }
 
+    /* ═══════════════ OCEAN DESIGN ENHANCEMENTS ═══════════════ */
+
+    /* Animated headline gradient */
+    @keyframes ocean-flow {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(120deg,
+        #004f80 0%, #0077a8 20%, #00b4d8 50%, #48cae4 75%, #0077a8 100%);
+      background-size: 300% 300%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: ocean-flow 5s ease infinite;
+    }
+
+    /* Hero deepened ocean bg */
+    .hero {
+      background: linear-gradient(170deg, #cde9f6 0%, #e4f5fc 30%, #f4fbff 70%, #ffffff 100%);
+    }
+    .hero::before {
+      background: radial-gradient(ellipse 1000px 520px at 50% -5%, rgba(0,180,216,.24) 0%, transparent 70%);
+    }
+
+    /* Hero floating bubbles */
+    .hero-bubbles {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    @keyframes bubble-rise {
+      0%   { transform: translateX(0) translateY(0) scale(1);   opacity: .65; }
+      40%  { transform: translateX(var(--dx, 8px)) translateY(-40%) scale(1.12); opacity: .45; }
+      100% { transform: translateX(var(--dx2, 4px)) translateY(-110%) scale(.7); opacity: 0; }
+    }
+    .bubble {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.8), rgba(72,202,228,.2));
+      border: 1px solid rgba(0,180,216,.15);
+      animation: bubble-rise var(--dur, 7s) var(--delay, 0s) ease-in-out infinite;
+    }
+    .hero > :not(.hero-bubbles):not(.hero-wave) { position: relative; z-index: 1; }
+
+    /* Hero bottom wave */
+    .hero-wave {
+      position: absolute; bottom: -1px; left: 0; width: 100%;
+      line-height: 0; pointer-events: none; z-index: 2;
+    }
+    .hero-wave svg { display: block; width: 100%; }
+
+    /* Stats hover */
+    .stat .num { display: block; transition: transform .25s, color .25s; }
+    .stat { cursor: default; }
+    .stat:hover .num { transform: scale(1.1); color: var(--blue-deep); }
+    .stat-ico { font-size: 1.4rem; display: block; margin-bottom: 6px; }
+
+    /* Member card badge / bar transitions */
+    .mc-badge  { transition: background .25s, color .25s; }
+    .mc-bar    { transition: width .35s ease; }
+    .member-card:hover .mc-badge { background: var(--blue-main); color: #fff; }
+    .member-card:hover .mc-bar   { width: 54px; }
+
+    /* Section h2 accent underline */
+    .section-head h2::after {
+      content: '';
+      display: block; width: 36px; height: 4px;
+      margin-top: 12px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--blue-main), var(--blue-light));
+    }
+
+    /* Step card emoji bounce */
+    .step-emoji { display: block; transition: transform .3s; }
+    .step-card:hover .step-emoji { transform: scale(1.25) rotate(-8deg); }
+
+    /* Info card hover lift */
+    .info-card {
+      box-shadow: 0 4px 24px rgba(0,150,199,.08);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .info-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 52px rgba(0,150,199,.22);
+    }
+
+    /* Why icon hover */
+    .why-ico { transition: transform .25s, background .25s, box-shadow .25s; }
+    .why-item:hover .why-ico {
+      transform: scale(1.12);
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-main));
+      box-shadow: 0 4px 16px rgba(0,150,199,.3);
+    }
+
+    /* Form box polish */
+    .form-box {
+      box-shadow: 0 8px 40px rgba(0,150,199,.1);
+      transition: box-shadow .3s;
+    }
+    .form-box:hover { box-shadow: 0 18px 60px rgba(0,150,199,.2); }
+
+    /* CTA depth overlay */
+    .cta-section::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 55% 80% at 12% 50%, rgba(0,200,240,.22) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 80% at 88% 50%, rgba(0,70,130,.22) 0%, transparent 60%);
+    }
+    .cta-section > * { position: relative; z-index: 1; }
+
+    /* Gallery hover */
+    .gallery-item:hover { transform: scale(1.03); box-shadow: 0 14px 40px rgba(0,150,199,.22); }
+
+    /* Case card hover */
+    .case-card:hover { box-shadow: 0 16px 48px rgba(0,150,199,.18); }
+    .case-photo { box-shadow: 0 4px 18px rgba(0,0,0,.1); border-radius: 12px; }
+
+    /* Review stars glow */
+    .review-stars { text-shadow: 0 0 10px rgba(245,158,11,.4); }
+
+    /* Nav refined */
+    nav { box-shadow: 0 2px 20px rgba(0,0,0,.05); }
+
+    /* Wave divider shape (after hero) */
+    .wave-sep { width: 100%; overflow: hidden; line-height: 0; display: block; margin-top: -2px; }
+    .wave-sep svg { display: block; width: 100%; }
+
     /* ── FILTER CHIPS ── */
     .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
     .filter-chip {
@@ -794,6 +917,18 @@
 
 <!-- HERO -->
 <section class="hero">
+  <!-- Floating ocean bubbles -->
+  <div class="hero-bubbles">
+    <div class="bubble" style="left:7%;bottom:20%;width:9px;height:9px;--dur:8s;--delay:0s;--dx:14px;--dx2:7px"></div>
+    <div class="bubble" style="left:18%;bottom:8%;width:5px;height:5px;--dur:6.5s;--delay:1.3s;--dx:-9px;--dx2:5px"></div>
+    <div class="bubble" style="left:32%;bottom:5%;width:12px;height:12px;--dur:9.5s;--delay:0.5s;--dx:20px;--dx2:-13px"></div>
+    <div class="bubble" style="left:48%;bottom:12%;width:6px;height:6px;--dur:7s;--delay:2.2s;--dx:-15px;--dx2:10px"></div>
+    <div class="bubble" style="left:62%;bottom:18%;width:4px;height:4px;--dur:6s;--delay:0.9s;--dx:11px;--dx2:-6px"></div>
+    <div class="bubble" style="left:74%;bottom:6%;width:10px;height:10px;--dur:8.5s;--delay:1.7s;--dx:-12px;--dx2:8px"></div>
+    <div class="bubble" style="left:84%;bottom:22%;width:5px;height:5px;--dur:5.5s;--delay:3.1s;--dx:8px;--dx2:5px"></div>
+    <div class="bubble" style="left:93%;bottom:10%;width:8px;height:8px;--dur:7.5s;--delay:0.6s;--dx:-10px;--dx2:14px"></div>
+  </div>
+
   <div class="hero-chip"><span class="dot"></span> 부산BNI OCEAN 챕터 운영 중 &nbsp;<span class="update-badge">오션챕터 업데이트중</span></div>
   <h1>
     부산 비즈니스를 키우는<br />
@@ -805,17 +940,24 @@
   </p>
   <div class="hero-btns">
     <a class="btn-main" href="#members">멤버 보기</a>
-    <a class="btn-line" href="#cta">무료 방문 신청</a>
+    <a class="btn-line" href="#apply">방문 신청</a>
+  </div>
+
+  <!-- Bottom wave -->
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,36 C200,72 400,4 600,42 C800,80 1000,8 1200,36 C1320,54 1400,24 1440,30 L1440,72 L0,72 Z" fill="#ffffff"/>
+    </svg>
   </div>
 </section>
 
 <!-- STATS -->
 <div class="stats-bar">
   <div class="inner">
-    <div class="stat"><span class="num" id="stat-member_count">14</span><div class="lbl">전문가 멤버</div></div>
-    <div class="stat"><span class="num" id="stat-monthly_referrals">350+</span><div class="lbl">월 평균 고객 추천</div></div>
-    <div class="stat"><span class="num" id="stat-total_revenue">35억+</span><div class="lbl">누적 리퍼럴 매출</div></div>
-    <div class="stat"><span class="num" id="stat-global_chapters">11,000+</span><div class="lbl">글로벌 챕터</div></div>
+    <div class="stat"><span class="stat-ico">👥</span><span class="num" id="stat-member_count">14</span><div class="lbl">전문가 멤버</div></div>
+    <div class="stat"><span class="stat-ico">🤝</span><span class="num" id="stat-monthly_referrals">350+</span><div class="lbl">월 평균 고객 추천</div></div>
+    <div class="stat"><span class="stat-ico">📈</span><span class="num" id="stat-total_revenue">35억+</span><div class="lbl">누적 리퍼럴 매출</div></div>
+    <div class="stat"><span class="stat-ico">🌐</span><span class="num" id="stat-global_chapters">11,000+</span><div class="lbl">글로벌 챕터</div></div>
   </div>
 </div>
 
@@ -824,110 +966,12 @@
   <div class="section-inner">
     <div class="section-head reveal">
       <span class="tag">OCEAN MEMBERS</span>
-      <h2>14인의 전문가 멤버</h2>
+      <h2>전문가 멤버</h2>
       <p>각 업종 단 1자리. BNI OCEAN을 이루는 핵심 전문가들입니다.</p>
     </div>
 
-    <div class="member-grid reveal">
-
-      <div class="member-card">
-        <span class="mc-badge">인테리어 (주거)</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">박귀붕</div>
-        <div class="mc-company">디자인 공간의힘</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">기업보험</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">정완식</div>
-        <div class="mc-company">영진에셋</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">인테리어 (뷰티샵)</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">강경석</div>
-        <div class="mc-company">디자인아톰</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">혈관·염증관리</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">이보영</div>
-        <div class="mc-company">독일피엠</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">정책자금</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">강밀알</div>
-        <div class="mc-company">선한파트너스</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">법인세무</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">김민규</div>
-        <div class="mc-company">다인세무회계파트너스</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">글로벌 유통</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">방혜정</div>
-        <div class="mc-company">JARREL LAB</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">형사변호사</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">양정훈</div>
-        <div class="mc-company">법무법인 베테랑</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">개인세무</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">박성준</div>
-        <div class="mc-company">박성준세무회계사무소</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">한의사</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">변종훈</div>
-        <div class="mc-company">태흥당한의원</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">개인보험</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">이성우</div>
-        <div class="mc-company">더베스트금융서비스</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">바른자세 습관지도</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">이은주</div>
-        <div class="mc-company">슬리밍고</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">인테리어 (상가)</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">박주영</div>
-        <div class="mc-company">스텔라디자인</div>
-      </div>
-
-      <div class="member-card">
-        <span class="mc-badge">마케팅 AI 자동화</span>
-        <div class="mc-bar"></div>
-        <div class="mc-name">김종은</div>
-        <div class="mc-company">삼칠</div>
-      </div>
-
+    <div class="member-grid reveal" id="member-grid">
+      <div class="member-loading">멤버 정보를 불러오는 중…</div>
     </div>
 
     </div><!-- /member-list -->
@@ -1259,92 +1303,65 @@
   });
 
   // ── Stats ──
+  function animateCounter(el, rawVal) {
+    const m = rawVal.match(/^([\d,]+)(\+?)$/);
+    if (!m) { el.textContent = rawVal; return; }
+    const target = parseInt(m[1].replace(/,/g, ''));
+    const suffix = m[2] || '';
+    const needsComma = rawVal.includes(',');
+    const duration = 1600;
+    const t0 = performance.now();
+    function tick(now) {
+      const p = Math.min((now - t0) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      const cur = Math.round(ease * target);
+      el.textContent = (needsComma ? cur.toLocaleString('ko-KR') : cur) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
   async function loadStats() {
     const { data } = await sb.from('bni_stats').select('stat_key,stat_value');
     if (!data) return;
-    data.forEach(({ stat_key, stat_value }) => {
-      const el = document.getElementById('stat-' + stat_key);
-      if (el) el.textContent = stat_value;
-    });
+    const statsBar = document.querySelector('.stats-bar');
+    const run = () => {
+      data.forEach(({ stat_key, stat_value }) => {
+        const el = document.getElementById('stat-' + stat_key);
+        if (el) animateCounter(el, stat_value);
+      });
+    };
+    if (statsBar) {
+      const obs = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) { run(); obs.disconnect(); }
+      }, { threshold: 0.3 });
+      obs.observe(statsBar);
+    } else {
+      run();
+    }
   }
 
   // ── Members ──
-  let allMembers = [];
-  const avatarColors = [
-    'linear-gradient(135deg,#0077a8,#00b4d8)',
-    'linear-gradient(135deg,#1a7abf,#48cae4)',
-    'linear-gradient(135deg,#0f5ea6,#0096c7)',
-    'linear-gradient(135deg,#005f87,#00b4d8)',
-    'linear-gradient(135deg,#006d9e,#48cae4)',
-    'linear-gradient(135deg,#0077a8,#90e0ef)',
-    'linear-gradient(135deg,#004f80,#0096c7)',
-    'linear-gradient(135deg,#0a5fa8,#00b4d8)',
-    'linear-gradient(135deg,#005f87,#48cae4)',
-    'linear-gradient(135deg,#1a7abf,#0096c7)',
-    'linear-gradient(135deg,#006d9e,#90e0ef)',
-    'linear-gradient(135deg,#004f80,#48cae4)',
-    'linear-gradient(135deg,#0077a8,#00b4d8)',
-    'linear-gradient(135deg,#005f87,#0096c7)',
-  ];
-
   async function loadMembers() {
     const { data } = await sb.from('bni_members').select('*').eq('is_active', true).order('display_order');
-    if (!data || !data.length) return;
-    allMembers = data;
-
-    // Build filter chips
-    const fields = [...new Set(data.map(m => m.field).filter(Boolean))];
-    const filterBar = document.getElementById('member-filter-bar');
-    fields.forEach(f => {
-      const btn = document.createElement('button');
-      btn.className = 'filter-chip';
-      btn.textContent = f;
-      btn.onclick = () => filterMembers(f, btn);
-      filterBar.appendChild(btn);
-    });
-
-    renderMembers(data);
-    io.observe(document.getElementById('member-filter-bar'));
-  }
-
-  function renderMembers(members) {
-    const body = document.getElementById('member-list-body');
-    body.innerHTML = members.map((m, idx) => {
-      const letter = m.name.charAt(0);
-      const color = avatarColors[idx % avatarColors.length];
-      const avatarHtml = m.photo_url
-        ? `<div class="avatar" style="background:${color}"><img src="${m.photo_url}" alt="${m.name}" /></div>`
-        : `<div class="avatar" style="background:${color}">${letter}</div>`;
+    const grid = document.getElementById('member-grid');
+    if (!data || !data.length) {
+      grid.innerHTML = '<div class="member-loading">멤버 정보가 없습니다.</div>';
+      return;
+    }
+    grid.innerHTML = data.map(m => {
       const instaHtml = m.instagram_url
-        ? `<a class="insta-btn" href="${m.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
-        : `<button class="action-btn" title="연락하기" onclick="location.href='#apply'">→</button>`;
+        ? `<a class="mc-insta" href="${m.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`
+        : '';
       return `
-        <div class="member-row">
-          <div class="row-num">${m.display_order}</div>
-          <div class="row-member">
-            ${avatarHtml}
-            <div>
-              <div class="row-name">${m.name}</div>
-              <div class="row-company-small">${m.company || ''}</div>
-            </div>
-          </div>
-          <div class="row-company">${m.company || '-'}</div>
-          <div class="row-field"><span class="field-badge">${m.field || '-'}</span></div>
-          <div class="row-action">${instaHtml}</div>
+        <div class="member-card">
+          <span class="mc-badge">${m.field || ''}</span>
+          <div class="mc-bar"></div>
+          <div class="mc-name">${m.name}</div>
+          <div class="mc-company">${m.company || ''}</div>
+          ${instaHtml}
         </div>`;
     }).join('');
-
-    // re-observe new elements for reveal
-    body.querySelectorAll('.member-row').forEach(el => {
-      el.style.opacity = '1';
-    });
-  }
-
-  function filterMembers(field, btn) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    const filtered = field === 'all' ? allMembers : allMembers.filter(m => m.field === field);
-    renderMembers(filtered);
   }
 
   // ── Reviews ──
