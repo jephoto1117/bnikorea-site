@@ -1349,6 +1349,9 @@
       grid.innerHTML = '<div class="member-loading">멤버 정보가 없습니다.</div>';
       return;
     }
+    // 활성 멤버 수 → stat 숫자 자동 반영
+    const countEl = document.getElementById('stat-member_count');
+    if (countEl) animateCounter(countEl, String(data.length));
     grid.innerHTML = data.map(m => {
       const instaHtml = m.instagram_url
         ? `<a class="mc-insta" href="${m.instagram_url}" target="_blank" rel="noopener">📷 Instagram</a>`

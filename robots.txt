@@ -8,3 +8,4 @@ User-agent: Googlebot
 Allow: /
 
 Sitemap: https://bnikorea.us/sitemap.xml
+Sitemap: https://bnikorea.us/sitemap-bni.xml
