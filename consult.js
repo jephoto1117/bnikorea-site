@@ -28,7 +28,7 @@
     if (window.supabase && window.supabase.createClient) return cb();
     var s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-    s.onload = cb; s.onerror = function () { cb('load-fail'); };
+    s.onload = function () { cb(); }; s.onerror = function () { cb('load-fail'); };
     document.head.appendChild(s);
   }
 
